@@ -1,0 +1,88 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CRM.Domain\CRM.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Common\Behaviors\" />
+    <Folder Include="Features\AreasRolesDefault\Dtos\" />
+    <Folder Include="Features\AreasRolesDefault\Interfaces\" />
+    <Folder Include="Features\AreasRolesDefault\Services\" />
+    <Folder Include="Features\AreasRolesDefault\Validators\" />
+    <Folder Include="Features\AreasRolesDefault\Responses\" />
+    <Folder Include="Features\AreasRolesDefault\Requests\" />
+    <Folder Include="Features\Auditoria\Dtos\" />
+    <Folder Include="Features\Auditoria\Interfaces\" />
+    <Folder Include="Features\Auditoria\Requests\" />
+    <Folder Include="Features\Auditoria\Responses\" />
+    <Folder Include="Features\Auditoria\Services\" />
+    <Folder Include="Features\Auditoria\Validators\" />
+    <Folder Include="Features\Auth\Dtos\" />
+    <Folder Include="Features\Auth\Interfaces\" />
+    <Folder Include="Features\Auth\Requests\" />
+    <Folder Include="Features\Auth\Responses\" />
+    <Folder Include="Features\Auth\Services\" />
+    <Folder Include="Features\Auth\Validators\" />
+    <Folder Include="Features\Empleados\Dtos\" />
+    <Folder Include="Features\Empleados\Interfaces\" />
+    <Folder Include="Features\Empleados\Requests\" />
+    <Folder Include="Features\Empleados\Responses\" />
+    <Folder Include="Features\Empleados\Services\" />
+    <Folder Include="Features\Empleados\Validators\" />
+    <Folder Include="Features\ItemsMaestros\Dtos\" />
+    <Folder Include="Features\ItemsMaestros\Interfaces\" />
+    <Folder Include="Features\ItemsMaestros\Requests\" />
+    <Folder Include="Features\ItemsMaestros\Responses\" />
+    <Folder Include="Features\ItemsMaestros\Services\" />
+    <Folder Include="Features\ItemsMaestros\Validators\" />
+    <Folder Include="Features\Modulos\Dtos\" />
+    <Folder Include="Features\Modulos\Interfaces\" />
+    <Folder Include="Features\Modulos\Requests\" />
+    <Folder Include="Features\Modulos\Responses\" />
+    <Folder Include="Features\Modulos\Services\" />
+    <Folder Include="Features\Modulos\Validators\" />
+    <Folder Include="Features\Permisos\Dtos\" />
+    <Folder Include="Features\Permisos\Interfaces\" />
+    <Folder Include="Features\Permisos\Requests\" />
+    <Folder Include="Features\Permisos\Responses\" />
+    <Folder Include="Features\Permisos\Services\" />
+    <Folder Include="Features\Permisos\Validators\" />
+    <Folder Include="Features\RelacionesItemsMaestros\Dtos\" />
+    <Folder Include="Features\RelacionesItemsMaestros\Interfaces\" />
+    <Folder Include="Features\RelacionesItemsMaestros\Requests\" />
+    <Folder Include="Features\RelacionesItemsMaestros\Responses\" />
+    <Folder Include="Features\RelacionesItemsMaestros\Services\" />
+    <Folder Include="Features\RelacionesItemsMaestros\Validators\" />
+    <Folder Include="Features\Roles\Dtos\" />
+    <Folder Include="Features\Roles\Interfaces\" />
+    <Folder Include="Features\Roles\Requests\" />
+    <Folder Include="Features\Roles\Responses\" />
+    <Folder Include="Features\Roles\Services\" />
+    <Folder Include="Features\Roles\Validators\" />
+    <Folder Include="Features\TablasMaestras\Dtos\" />
+    <Folder Include="Features\TablasMaestras\Interfaces\" />
+    <Folder Include="Features\TablasMaestras\Requests\" />
+    <Folder Include="Features\TablasMaestras\Responses\" />
+    <Folder Include="Features\TablasMaestras\Services\" />
+    <Folder Include="Features\TablasMaestras\Validators\" />
+    <Folder Include="Features\Usuarios\Dtos\" />
+    <Folder Include="Features\Usuarios\Interfaces\" />
+    <Folder Include="Features\Usuarios\Requests\" />
+    <Folder Include="Features\Usuarios\Responses\" />
+    <Folder Include="Features\Usuarios\Services\" />
+    <Folder Include="Features\Usuarios\Validators\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
+  </ItemGroup>
+
+</Project>

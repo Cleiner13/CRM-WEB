@@ -1,0 +1,17 @@
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\bin\Debug\net8.0\CRM.Infrastructure.deps.json
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\bin\Debug\net8.0\CRM.Infrastructure.dll
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\bin\Debug\net8.0\CRM.Infrastructure.pdb
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\bin\Debug\net8.0\CRM.Application.dll
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\bin\Debug\net8.0\CRM.Domain.dll
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\bin\Debug\net8.0\CRM.Application.pdb
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\bin\Debug\net8.0\CRM.Domain.pdb
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infrastructure.csproj.AssemblyReference.cache
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infrastructure.AssemblyInfoInputs.cache
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infrastructure.AssemblyInfo.cs
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infr.2D6F64BC.Up2Date
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infrastructure.dll
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\refint\CRM.Infrastructure.dll
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\CRM.Infrastructure.pdb
+C:\Users\almpes72733271\source\repos\CRM-WEB-BACKEND\CRM.Infrastructure\obj\Debug\net8.0\ref\CRM.Infrastructure.dll
