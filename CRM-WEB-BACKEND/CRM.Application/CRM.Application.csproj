@@ -25,10 +25,6 @@
     <Folder Include="Features\Auditoria\Services\" />
     <Folder Include="Features\Auditoria\Validators\" />
     <Folder Include="Features\Auth\Dtos\" />
-    <Folder Include="Features\Auth\Interfaces\" />
-    <Folder Include="Features\Auth\Requests\" />
-    <Folder Include="Features\Auth\Responses\" />
-    <Folder Include="Features\Auth\Services\" />
     <Folder Include="Features\Auth\Validators\" />
     <Folder Include="Features\Empleados\Dtos\" />
     <Folder Include="Features\Empleados\Interfaces\" />

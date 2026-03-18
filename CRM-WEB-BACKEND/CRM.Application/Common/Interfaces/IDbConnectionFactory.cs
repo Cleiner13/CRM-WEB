@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
 
-namespace CRM.Application.Common.Interfaces
+namespace CRM.Application.Common.Interfaces;
+
+public interface IDbConnectionFactory
 {
-    internal class IDbConnectionFactory
-    {
-    }
+    IDbConnection CreateConnection();
 }

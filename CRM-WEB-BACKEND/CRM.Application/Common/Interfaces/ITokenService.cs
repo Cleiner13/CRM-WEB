@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CRM.Domain.Entities;
 
-namespace CRM.Application.Common.Interfaces
+namespace CRM.Application.Common.Interfaces;
+
+public interface ITokenService
 {
-    internal class ITokenService
-    {
-    }
+    string GenerateAccessToken(Usuario usuario);
+    string GenerateRefreshToken();
 }

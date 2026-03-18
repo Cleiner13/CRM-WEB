@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace CRM.Application.Common.Interfaces;
 
-namespace CRM.Application.Common.Interfaces
+public interface ICurrentUserService
 {
-    internal class ICurrentUserService
-    {
-    }
+    long? UsuarioId { get; }
+    long? EmpleadoId { get; }
+    string? Username { get; }
+    List<string> Roles { get; }
+    List<string> Permisos { get; }
+    bool IsAuthenticated { get; }
 }
