@@ -3,24 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{707BA4AC-D529-4344-9801-F3785061DD27}|CRM.Domain\\CRM.Domain.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.domain\\entities\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{707BA4AC-D529-4344-9801-F3785061DD27}|CRM.Domain\\CRM.Domain.csproj|solutionrelative:crm.domain\\entities\\usuario.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.infrastructure\\persistence\\repositories\\auth\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|solutionrelative:crm.infrastructure\\persistence\\repositories\\auth\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.infrastructure\\persistence\\repositories\\permisos\\permisosrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|solutionrelative:crm.infrastructure\\persistence\\repositories\\permisos\\permisosrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\controllers\\permisoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\controllers\\permisoscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -30,71 +22,46 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Usuario.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Domain\\Entities\\Usuario.cs",
-              "RelativeDocumentMoniker": "CRM.Domain\\Entities\\Usuario.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Domain\\Entities\\Usuario.cs",
-              "RelativeToolTip": "CRM.Domain\\Entities\\Usuario.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T03:25:29.193Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "AuthService.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Services\\AuthService.cs",
-              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Services\\AuthService.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Services\\AuthService.cs",
-              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Services\\AuthService.cs",
-              "ViewState": "AgIAACQAAAAAAAAAAAAowDkAAAAyAAAAAAAAAA==",
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Program.cs",
+              "RelativeDocumentMoniker": "CRM.Api\\Program.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Program.cs*",
+              "RelativeToolTip": "CRM.Api\\Program.cs*",
+              "ViewState": "AgIAABsAAAAAAAAAAAAAAD4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T03:06:23.322Z",
+              "WhenOpened": "2026-03-18T15:25:25.124Z",
+              "IsPinned": true,
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "AuthRepository.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
-              "RelativeDocumentMoniker": "CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
-              "RelativeToolTip": "CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAowJkAAAABAAAAAAAAAA==",
+              "Title": "PermisosController.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Controllers\\PermisosController.cs",
+              "RelativeDocumentMoniker": "CRM.Api\\Controllers\\PermisosController.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Controllers\\PermisosController.cs",
+              "RelativeToolTip": "CRM.Api\\Controllers\\PermisosController.cs",
+              "ViewState": "AgIAABsAAAAAAAAAAAA0wCkAAAAyAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T01:56:29.415Z",
+              "WhenOpened": "2026-03-18T23:58:41.028Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Program.cs",
-              "RelativeDocumentMoniker": "CRM.Api\\Program.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Program.cs",
-              "RelativeToolTip": "CRM.Api\\Program.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAABsAAABAAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "PermisosRepository.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Persistence\\Repositories\\Permisos\\PermisosRepository.cs",
+              "RelativeDocumentMoniker": "CRM.Infrastructure\\Persistence\\Repositories\\Permisos\\PermisosRepository.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Persistence\\Repositories\\Permisos\\PermisosRepository.cs",
+              "RelativeToolTip": "CRM.Infrastructure\\Persistence\\Repositories\\Permisos\\PermisosRepository.cs",
+              "ViewState": "AgIAAB0AAAAAAAAAAAAIwD0AAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-18T01:22:56.282Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json",
-              "RelativeDocumentMoniker": "CRM.Api\\appsettings.json",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json",
-              "RelativeToolTip": "CRM.Api\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAnAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2026-03-18T01:22:35.268Z",
+              "WhenOpened": "2026-03-18T23:58:06.109Z",
               "EditorCaption": ""
             }
           ]

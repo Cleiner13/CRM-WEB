@@ -21,6 +21,26 @@ public class Usuario : AuditableEntity
     public DateTime? BloqueadoHasta { get; set; }
     public DateTime? FechaUltimoLogin { get; set; }
 
+    /// <summary>
+    /// Indica si el usuario está activo según el SP de login.
+    /// </summary>
+    public bool Activo { get; set; }
+
+    /// <summary>
+    /// Fecha y hora del último acceso registrado.
+    /// </summary>
+    public DateTime? UltimoLogin { get; set; }
+
+    // Información del área a la que pertenece el usuario
+    public long? AreaId { get; set; }
+    public string? AreaCodigo { get; set; }
+    public string? AreaNombre { get; set; }
+
+    // Información del cargo del usuario
+    public long? CargoId { get; set; }
+    public string? CargoCodigo { get; set; }
+    public string? CargoNombre { get; set; }
+
     public List<Rol> Roles { get; set; } = new();
     public List<Permiso> Permisos { get; set; } = new();
 }

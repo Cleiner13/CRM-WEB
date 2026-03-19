@@ -15,6 +15,19 @@ public class LoginResponse
     public string RefreshToken { get; set; } = string.Empty;
     public DateTime AccessTokenExpiraEn { get; set; }
 
+    public bool Activo { get; set; }
+    public DateTime? UltimoLogin { get; set; }
+    public int IntentosFallidos { get; set; }
+    public DateTime? BloqueoHasta { get; set; }
+
+    public long? AreaId { get; set; }
+    public string? AreaCodigo { get; set; }
+    public string? AreaNombre { get; set; }
+
+    public long? CargoId { get; set; }
+    public string? CargoCodigo { get; set; }
+    public string? CargoNombre { get; set; }
+
     public List<string> Roles { get; set; } = new();
     public List<string> Permisos { get; set; } = new();
 }

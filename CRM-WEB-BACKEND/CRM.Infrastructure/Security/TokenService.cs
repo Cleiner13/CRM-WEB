@@ -34,29 +34,57 @@ public class TokenService : ITokenService
 
         var claims = new List<Claim>
         {
-            new Claim("UsuarioId", usuario.UsuarioId.ToString()),
-            new Claim("Username", usuario.Username)
+            new("UsuarioId", usuario.UsuarioId.ToString()),
+            new("Username", usuario.Username),
+            new("Activo", usuario.Activo.ToString()),
+            new("RequiereCambioPassword", usuario.RequiereCambioPassword.ToString())
         };
 
         if (usuario.EmpleadoId.HasValue)
-        {
             claims.Add(new Claim("EmpleadoId", usuario.EmpleadoId.Value.ToString()));
-        }
+
+        if (!string.IsNullOrWhiteSpace(usuario.NombreCompleto))
+            claims.Add(new Claim("NombreCompleto", usuario.NombreCompleto));
+
+        if (!string.IsNullOrWhiteSpace(usuario.EmailCoorporativo))
+            claims.Add(new Claim("EmailCoorporativo", usuario.EmailCoorporativo));
+
+        if (usuario.UltimoLogin.HasValue)
+            claims.Add(new Claim("UltimoLogin", usuario.UltimoLogin.Value.ToString("O")));
+
+        claims.Add(new Claim("IntentosFallidos", usuario.IntentosFallidos.ToString()));
+
+        if (usuario.BloqueadoHasta.HasValue)
+            claims.Add(new Claim("BloqueadoHasta", usuario.BloqueadoHasta.Value.ToString("O")));
+
+        if (usuario.AreaId.HasValue)
+            claims.Add(new Claim("AreaId", usuario.AreaId.Value.ToString()));
+
+        if (!string.IsNullOrWhiteSpace(usuario.AreaCodigo))
+            claims.Add(new Claim("AreaCodigo", usuario.AreaCodigo));
+
+        if (!string.IsNullOrWhiteSpace(usuario.AreaNombre))
+            claims.Add(new Claim("AreaNombre", usuario.AreaNombre));
+
+        if (usuario.CargoId.HasValue)
+            claims.Add(new Claim("CargoId", usuario.CargoId.Value.ToString()));
+
+        if (!string.IsNullOrWhiteSpace(usuario.CargoCodigo))
+            claims.Add(new Claim("CargoCodigo", usuario.CargoCodigo));
+
+        if (!string.IsNullOrWhiteSpace(usuario.CargoNombre))
+            claims.Add(new Claim("CargoNombre", usuario.CargoNombre));
 
         foreach (var rol in usuario.Roles)
         {
             if (!string.IsNullOrWhiteSpace(rol.Nombre))
-            {
                 claims.Add(new Claim(ClaimTypes.Role, rol.Nombre));
-            }
         }
 
         foreach (var permiso in usuario.Permisos)
         {
             if (!string.IsNullOrWhiteSpace(permiso.Codigo))
-            {
                 claims.Add(new Claim("Permiso", permiso.Codigo));
-            }
         }
 
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));

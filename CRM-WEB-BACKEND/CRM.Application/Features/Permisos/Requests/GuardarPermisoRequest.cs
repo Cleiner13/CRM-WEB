@@ -1,0 +1,12 @@
+﻿namespace CRM.Application.Features.Permisos.Requests;
+
+public class GuardarPermisoRequest
+{
+    public long? PermisoId { get; set; }
+    public long ModuloId { get; set; }
+
+    public string Codigo { get; set; } = string.Empty;
+    public string Nombre { get; set; } = string.Empty;
+    public string? Descripcion { get; set; }
+    public string? DatosExtra { get; set; }
+}
