@@ -12,11 +12,17 @@ export type TopbarProps = {
 export function Topbar({ isSidebarOpen, onToggleSidebar }: TopbarProps): JSX.Element {
   const navigate = useNavigate();
 
-  const mockUser = {
-    name: "CLEINER TAFUR CADENILLAS",
-    role: "Administrador",
+  const currentUser = authService.getCurrentUser();
+
+  const userDisplay = currentUser ? {
+    name: currentUser.nombreCompleto || currentUser.username,
+    role: currentUser.roles?.join(", ") || "Usuario",
+    avatar: "https://i.pravatar.cc/80?img=12", // Placeholder
+  } : {
+    name: "Usuario",
+    role: "Cargando...",
     avatar: "https://i.pravatar.cc/80?img=12",
-  } as const;
+  };
 
   const handleLogout = (): void => {
     authService.logout();
@@ -53,9 +59,9 @@ export function Topbar({ isSidebarOpen, onToggleSidebar }: TopbarProps): JSX.Ele
           <Bell size={18} />
         </button>
         <button aria-label="Perfil de usuario" className={LAYOUT_STYLES.topbarUser} onClick={handleLogout} type="button">
-          <img alt={mockUser.name} className={LAYOUT_STYLES.topbarUserAvatar} src={mockUser.avatar} />
+          <img alt={userDisplay.name} className={LAYOUT_STYLES.topbarUserAvatar} src={userDisplay.avatar} />
           <span className={LAYOUT_STYLES.topbarUserMeta}>
-            <span className={LAYOUT_STYLES.topbarUserName}>{mockUser.name}</span>
+            <span className={LAYOUT_STYLES.topbarUserName}>{userDisplay.name}</span>
           </span>
           <ChevronDown className={LAYOUT_STYLES.topbarUserChevron} size={16} />
         </button>

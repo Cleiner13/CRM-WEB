@@ -42,6 +42,18 @@ public class AuthService : IAuthService
             return null;
         }
 
+        if (!usuario.Activo)
+        {
+            // Usuario inactivo, no emitimos token
+            return new LoginResponse
+            {
+                Activo = false,
+                UsuarioId = usuario.UsuarioId,
+                Username = usuario.Username,
+                RequiereCambioPassword = usuario.RequiereCambioPassword
+            };
+        }
+
         var accessToken = _tokenService.GenerateAccessToken(usuario);
         var refreshToken = _tokenService.GenerateRefreshToken();
 

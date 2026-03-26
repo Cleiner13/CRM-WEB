@@ -1,8 +1,10 @@
-﻿import type { KeyboardEvent, ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { useEffect, useId, useMemo, useRef } from "react";
+import { AlertCircle, AlertTriangle, Info, X } from "lucide-react";
 import { createPortal } from "react-dom";
-import { MODAL_STYLES } from "@/config/styles";
-import { Button } from "@/components/ui/Button";
+import { MODAL_STYLES, cx } from "@/config/styles";
+
+export type ModalVariant = "error" | "warning" | "info";
 
 export type ModalProps = {
   isOpen: boolean;
@@ -10,6 +12,7 @@ export type ModalProps = {
   children: ReactNode;
   footer?: ReactNode;
   onClose: () => void;
+  variant?: ModalVariant;
 };
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
@@ -25,7 +28,38 @@ function getFocusableElements(container: HTMLElement): HTMLElement[] {
   return Array.from(container.querySelectorAll<HTMLElement>(selector));
 }
 
-export function Modal({ children, footer, isOpen, onClose, title }: ModalProps): JSX.Element | null {
+function getModalIcon(variant: ModalVariant): JSX.Element {
+  if (variant === "warning") {
+    return <AlertTriangle size={34} strokeWidth={2.25} />;
+  }
+
+  if (variant === "info") {
+    return <Info size={34} strokeWidth={2.25} />;
+  }
+
+  return <AlertCircle size={34} strokeWidth={2.25} />;
+}
+
+function getIconClassName(variant: ModalVariant): string {
+  if (variant === "warning") {
+    return MODAL_STYLES.iconWarning;
+  }
+
+  if (variant === "info") {
+    return MODAL_STYLES.iconInfo;
+  }
+
+  return MODAL_STYLES.iconError;
+}
+
+export function Modal({
+  children,
+  footer,
+  isOpen,
+  onClose,
+  title,
+  variant = "error",
+}: ModalProps): JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
 
@@ -96,7 +130,6 @@ export function Modal({ children, footer, isOpen, onClose, title }: ModalProps):
       aria-labelledby={titleId}
       aria-modal="true"
       className={MODAL_STYLES.overlay}
-      onClick={onClose}
       onKeyDown={onKeyDown}
       role="dialog"
     >
@@ -107,13 +140,21 @@ export function Modal({ children, footer, isOpen, onClose, title }: ModalProps):
         tabIndex={-1}
       >
         <div className={MODAL_STYLES.header}>
-          <h2 className={MODAL_STYLES.title} id={titleId}>
-            {title}
-          </h2>
-          <Button aria-label="Cerrar modal" onClick={onClose} variant="clear">
-            Cerrar
-          </Button>
+          <div className={MODAL_STYLES.headerMain}>
+            <div className={cx(MODAL_STYLES.iconWrap, getIconClassName(variant))}>{getModalIcon(variant)}</div>
+            <div className={MODAL_STYLES.titleWrap}>
+              <h2 className={MODAL_STYLES.title} id={titleId}>
+                {title}
+              </h2>
+            </div>
+          </div>
+
+          <button aria-label="Cerrar modal" className={MODAL_STYLES.closeIconButton} onClick={onClose} type="button">
+            <X size={22} strokeWidth={2.5} />
+          </button>
         </div>
+
+        <div aria-hidden="true" className={MODAL_STYLES.divider} />
         <div className={MODAL_STYLES.body}>{children}</div>
         {footer ? <div className={MODAL_STYLES.footer}>{footer}</div> : null}
       </div>

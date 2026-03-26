@@ -3,6 +3,7 @@ import { ROUTES } from "@/config/routes";
 import { AppShell } from "@/components/layout";
 import { ProtectedRoute } from "@/router/ProtectedRoute";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
+import { ChangePasswordPage } from "@/features/auth/pages/ChangePasswordPage";
 import { DashboardPage } from "@/features/dashboard/pages/DashboardPage";
 import { ProfilePage } from "@/features/profile/pages/ProfilePage";
 import { InboxPage } from "@/features/inbox/pages/InboxPage";
@@ -41,6 +42,7 @@ export function AppRouter(): JSX.Element {
     <Routes>
       <Route element={<Navigate replace to={ROUTES.dashboard} />} path="/" />
       <Route element={<LoginPage />} path={ROUTES.login} />
+      <Route element={<ChangePasswordPage />} path={ROUTES.changePassword} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
         <Route path={ROUTES.dashboard} element={<DashboardPage />} />

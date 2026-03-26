@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using Microsoft.Data.SqlClient;
 using System.Security.Cryptography;
 using System.Text;
 using CRM.Application.Common.Interfaces;
@@ -6,6 +7,7 @@ using CRM.Application.Features.Auth.Dtos;
 using CRM.Application.Features.Auth.Interfaces;
 using CRM.Domain.Entities;
 using Dapper;
+using Microsoft.AspNetCore.Http;
 
 namespace CRM.Infrastructure.Persistence.Repositories.Auth;
 
@@ -37,54 +39,75 @@ public class AuthRepository : IAuthRepository
             commandType: CommandType.StoredProcedure,
             cancellationToken: cancellationToken);
 
-        using var multi = await connection.QueryMultipleAsync(command);
+        try
+        {
+            using var multi = await connection.QueryMultipleAsync(command);
 
-        var usuarioDb = await multi.ReadFirstOrDefaultAsync<UsuarioLoginDbModel>();
+            var usuarioDb = await multi.ReadFirstOrDefaultAsync<UsuarioLoginDbModel>();
 
-        if (usuarioDb is null)
+            if (usuarioDb is null)
+            {
+                return null;
+            }
+
+            var rolesDb = (await multi.ReadAsync<RolLoginDbModel>()).ToList();
+            var permisosDb = (await multi.ReadAsync<PermisoLoginDbModel>()).ToList();
+
+            return new Usuario
+            {
+                UsuarioId = usuarioDb.UsuarioId,
+                EmpleadoId = usuarioDb.EmpleadoId,
+                Username = usuarioDb.Usuario ?? string.Empty,
+                NombreCompleto = usuarioDb.NombreCompleto,
+                RequiereCambioPassword = usuarioDb.DebeCambiarPassword,
+                Activo = usuarioDb.Activo,
+                UltimoLogin = usuarioDb.UltimoLogin,
+                IntentosFallidos = usuarioDb.IntentosFallidos,
+                BloqueadoHasta = usuarioDb.BloqueoHasta,
+                AreaId = usuarioDb.AreaId,
+                AreaCodigo = usuarioDb.AreaCodigo,
+                AreaNombre = usuarioDb.AreaNombre,
+                CargoId = usuarioDb.CargoId,
+                CargoCodigo = usuarioDb.CargoCodigo,
+                CargoNombre = usuarioDb.CargoNombre,
+                EmailCoorporativo = usuarioDb.EmailCoorporativo,
+                Roles = rolesDb
+                    .Select(x => new Rol
+                    {
+                        RolId = x.RolId,
+                        Codigo = x.Codigo ?? string.Empty,
+                        Nombre = x.Nombre ?? string.Empty
+                    })
+                    .ToList(),
+                Permisos = permisosDb
+                    .Select(x => new Permiso
+                    {
+                        PermisoId = x.PermisoId,
+                        ModuloId = x.ModuloId,
+                        Codigo = x.PermisoCodigo ?? string.Empty,
+                        Nombre = x.PermisoNombre ?? string.Empty
+                    })
+                    .ToList()
+            };
+        }
+        catch (SqlException ex) when (ex.Message.Contains("Credenciales inválidas", StringComparison.OrdinalIgnoreCase))
         {
             return null;
         }
-
-        var rolesDb = (await multi.ReadAsync<RolLoginDbModel>()).ToList();
-        var permisosDb = (await multi.ReadAsync<PermisoLoginDbModel>()).ToList();
-
-        return new Usuario
+        catch (SqlException ex) when (ex.Message.Contains("bloqueado", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("Usuario bloqueado", StringComparison.OrdinalIgnoreCase))
         {
-            UsuarioId = usuarioDb.UsuarioId,
-            EmpleadoId = usuarioDb.EmpleadoId,
-            Username = usuarioDb.Usuario ?? string.Empty,
-            NombreCompleto = usuarioDb.NombreCompleto,
-            RequiereCambioPassword = usuarioDb.DebeCambiarPassword,
-            Activo = usuarioDb.Activo,
-            UltimoLogin = usuarioDb.UltimoLogin,
-            IntentosFallidos = usuarioDb.IntentosFallidos,
-            BloqueadoHasta = usuarioDb.BloqueoHasta,
-            AreaId = usuarioDb.AreaId,
-            AreaCodigo = usuarioDb.AreaCodigo,
-            AreaNombre = usuarioDb.AreaNombre,
-            CargoId = usuarioDb.CargoId,
-            CargoCodigo = usuarioDb.CargoCodigo,
-            CargoNombre = usuarioDb.CargoNombre,
-            EmailCoorporativo = usuarioDb.EmailCoorporativo,
-            Roles = rolesDb
-                .Select(x => new Rol
-                {
-                    RolId = x.RolId,
-                    Codigo = x.Codigo ?? string.Empty,
-                    Nombre = x.Nombre ?? string.Empty
-                })
-                .ToList(),
-            Permisos = permisosDb
-                .Select(x => new Permiso
-                {
-                    PermisoId = x.PermisoId,
-                    ModuloId = x.ModuloId,
-                    Codigo = x.PermisoCodigo ?? string.Empty,
-                    Nombre = x.PermisoNombre ?? string.Empty
-                })
-                .ToList()
-        };
+            throw BuildBlockedException(await ObtenerUsuarioPorUsernameAsync(username, cancellationToken));
+        }
+        catch (SqlException ex) when (ex.Message.Contains("inactivo", StringComparison.OrdinalIgnoreCase) || ex.Message.Contains("desactivado", StringComparison.OrdinalIgnoreCase))
+        {
+            var usuario = await ObtenerUsuarioPorUsernameAsync(username, cancellationToken);
+            if (usuario?.Activo == true && usuario.BloqueadoHasta.HasValue && usuario.BloqueadoHasta.Value > DateTime.UtcNow)
+            {
+                throw BuildBlockedException(usuario);
+            }
+
+            throw new CRM.Application.Common.Models.AppException(StatusCodes.Status403Forbidden, "Usuario inactivo. Contacte a sistemas.");
+        }
     }
 
     public async Task RegistrarRefreshTokenAsync(
@@ -226,12 +249,27 @@ public class AuthRepository : IAuthRepository
         long usuarioId,
         CancellationToken cancellationToken = default)
     {
+        return await ObtenerUsuarioAsync(usuarioId, null, cancellationToken);
+    }
+
+    public async Task<Usuario?> ObtenerUsuarioPorUsernameAsync(
+        string username,
+        CancellationToken cancellationToken = default)
+    {
+        return await ObtenerUsuarioAsync(null, username, cancellationToken);
+    }
+
+    private async Task<Usuario?> ObtenerUsuarioAsync(
+        long? usuarioId,
+        string? username,
+        CancellationToken cancellationToken = default)
+    {
         using var connection = _connectionFactory.CreateConnection();
 
         var parameters = new DynamicParameters();
         parameters.Add("@UsuarioId", usuarioId, DbType.Int64);
         parameters.Add("@EmpleadoId", null, DbType.Int64);
-        parameters.Add("@Usuario", null, DbType.String);
+        parameters.Add("@Usuario", username, DbType.String);
 
         var command = new CommandDefinition(
             commandText: "seg.usp_Usuarios_Obtener",
@@ -312,13 +350,57 @@ public class AuthRepository : IAuthRepository
             commandType: CommandType.StoredProcedure,
             cancellationToken: cancellationToken);
 
-        await connection.ExecuteAsync(command);
+        try
+        {
+            await connection.ExecuteAsync(command);
+        }
+        catch (SqlException ex) when (
+            ex.Message.Contains("password actual", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("contraseña actual", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("contrasena actual", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("actual no coincide", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("actual es incorrect", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("actual incorrect", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new CRM.Application.Common.Models.AppException(
+                StatusCodes.Status400BadRequest,
+                "La contrasena actual no es correcta.");
+        }
+        catch (SqlException ex) when (
+            ex.Message.Contains("seguridad", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("mayúscula", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("mayuscula", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("minúscula", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("minuscula", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("símbolo", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("simbolo", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("número", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("numero", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("caracteres", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("longitud", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new CRM.Application.Common.Models.AppException(
+                StatusCodes.Status400BadRequest,
+                "La nueva contrasena no cumple la politica minima de seguridad.");
+        }
     }
 
     private static string ComputeSha256(string value)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
         return Convert.ToHexString(bytes);
+    }
+
+    private static CRM.Application.Common.Models.AppException BuildBlockedException(Usuario? usuario)
+    {
+        var details = usuario?.BloqueadoHasta is DateTime bloqueadoHasta
+            ? new { bloqueadoHasta }
+            : null;
+
+        return new CRM.Application.Common.Models.AppException(
+            StatusCodes.Status403Forbidden,
+            "Usuario bloqueado temporalmente. Intente más tarde.",
+            details);
     }
 
     private sealed class UsuarioLoginDbModel

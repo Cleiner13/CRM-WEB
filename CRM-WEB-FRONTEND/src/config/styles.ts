@@ -144,7 +144,11 @@ export const BUTTON_STYLES = {
 export const INPUT_STYLES = {
   fieldWrapper: "w-full space-y-2",
   label: "block text-sm font-medium text-slate-800",
+  inputWrap: "relative",
   baseField: "w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-900 shadow-sm transition placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2",
+  withRightAdornment: "pr-11",
+  rightAdornment:
+    "absolute inset-y-0 right-3 flex items-center text-slate-500 transition hover:text-slate-700 focus-visible:outline-none",
   focus: "border-slate-300 focus-visible:border-blue-500 focus-visible:ring-blue-500/30",
   error: "border-red-500 focus-visible:border-red-500 focus-visible:ring-red-500/25",
   helperText: "text-xs text-slate-500",
@@ -165,12 +169,20 @@ export const TABLE_STYLES = {
 
 export const MODAL_STYLES = {
   overlay: "fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm",
-  panel: "w-full max-w-2xl rounded-2xl bg-white shadow-2xl ring-1 ring-black/5",
-  header: "flex items-center justify-between border-b border-slate-200 px-5 py-4",
-  title: "text-lg font-semibold text-slate-900",
-  body: "px-5 py-4",
-  footer: "flex flex-wrap items-center justify-end gap-2 border-t border-slate-200 px-5 py-4",
-  closeButton: BUTTON_STYLES.ghost,
+  panel: "w-full max-w-2xl rounded-[24px] border border-slate-200 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.22)]",
+  header: "flex items-start justify-between gap-4 px-7 py-6",
+  headerMain: "flex items-center gap-4",
+  iconWrap: "grid h-[68px] w-[68px] shrink-0 place-items-center rounded-full text-white shadow-[0_12px_28px_rgba(127,29,29,0.2)]",
+  iconError: "bg-[linear-gradient(180deg,#d62828,#9d0208)]",
+  iconWarning: "bg-[linear-gradient(180deg,#fbbf24,#d97706)]",
+  iconInfo: "bg-[linear-gradient(180deg,#7f1d1d,#991b1b)]",
+  titleWrap: "space-y-1 pt-1",
+  title: "text-[1.05rem] font-bold text-slate-900 sm:text-[1.15rem]",
+  divider: "mx-7 h-px bg-slate-200",
+  body: "px-7 py-6 text-[15px] leading-8 text-slate-700",
+  footer: "flex flex-wrap items-center justify-end gap-3 border-t border-slate-200 px-7 py-5",
+  closeIconButton:
+    "inline-flex h-11 w-11 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7f1d1d]/20",
 } as const;
 
 export const CARD_STYLES = {
@@ -199,7 +211,8 @@ export const TOAST_STYLES = {
   messageWrap: "space-y-1",
   title: "text-sm font-semibold",
   message: "text-sm",
-  dismiss: BUTTON_STYLES.ghost,
+  dismiss:
+    "inline-flex h-8 w-8 items-center justify-center rounded-full text-current transition hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current/15",
   variants: {
     success: "border-emerald-200 bg-emerald-50 text-emerald-900",
     error: "border-rose-200 bg-rose-50 text-rose-900",
@@ -225,36 +238,39 @@ export function cx(...values: Array<string | false | null | undefined>): string 
 }
 
 export const AUTH_STYLES = {
-  page: "min-h-screen bg-slate-100",
-  shell: "grid min-h-screen w-full overflow-hidden bg-white lg:grid-cols-[1.25fr_0.95fr]",
-  visual: "relative hidden lg:block min-h-screen",
-  visualImage: "absolute inset-0 h-full w-full object-cover",
-  visualOverlay: "absolute inset-0 bg-[#2e0810]/65",
-  visualGlow: "absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.16),transparent_42%),radial-gradient(circle_at_85%_70%,rgba(37,99,235,0.15),transparent_44%)]",
-  visualContent: "relative z-10 flex h-full items-end p-10 text-white",
-  visualTextWrap: "max-w-sm space-y-3",
-  visualTitle: "text-3xl font-semibold leading-tight",
-  visualText: "text-sm leading-6 text-white/85",
-  diagonalLine: "pointer-events-none absolute right-[-20px] top-[-10%] hidden h-[120%] w-px rotate-[32deg] bg-white/70 shadow-[0_0_0_1px_rgba(46,8,16,0.35)] lg:block",
-  formPanel: "relative flex min-h-screen items-center justify-center p-5 sm:p-8 lg:p-10",
-  formPanelBg: "absolute inset-0 bg-gradient-to-br from-white to-slate-50",
-  formStack: "relative z-10 w-full max-w-md space-y-4",
+  page: "min-h-screen bg-[#f3eeea]",
+  shell: "grid min-h-screen w-full overflow-hidden lg:grid-cols-[64%_36%]",
+  visual: "relative hidden min-h-screen overflow-hidden lg:block",
+  visualImage: "absolute inset-0 h-full w-full object-cover object-center",
+  visualOverlay: "absolute inset-0 bg-[#030202]/75",
+  visualGlow: "absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.02))]",
+  visualContent: "hidden",
+  visualTextWrap: "hidden",
+  visualTitle: "hidden",
+  visualText: "hidden",
+  diagonalLine: "pointer-events-none absolute right-0 top-0 hidden h-full w-px bg-white/25 lg:block",
+  formPanel:
+    "relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-8 sm:px-10 lg:px-8 xl:px-10",
+  formPanelBg:
+    "absolute inset-0 bg-white lg:bg-[linear-gradient(180deg,rgba(255,255,255,0.34),rgba(244,238,232,0.26))] lg:backdrop-blur-[3px]",
+  formStack:
+    "relative z-10 w-full max-w-[378px] rounded-[30px] border border-white/70 bg-white/22 px-4 py-5 shadow-[0_16px_40px_rgba(65,39,31,0.14)] backdrop-blur-md sm:max-w-[398px] sm:px-5 sm:py-6",
   formBrand: "space-y-3 text-center",
-  formBrandLogoWrap: "inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white p-2 shadow-sm",
-  formBrandLogo: "h-14 w-auto object-contain",
-  formBrandTitle: "text-2xl font-semibold text-slate-900",
-  formBrandText: "text-sm text-slate-500",
-  formCard: "rounded-2xl border border-slate-200 bg-white shadow-sm",
-  formHeader: "space-y-1",
-  formTitle: "text-xl font-semibold text-slate-900",
-  formSubtitle: "text-sm text-slate-500",
+  formBrandLogoWrap: "mx-auto flex items-center justify-center",
+  formBrandLogo: "h-16 w-auto object-contain sm:h-[4.4rem]",
+  formBrandTitle: "text-[2.05rem] font-bold leading-none text-[#2e0810]",
+  formBrandText: "text-[14px] text-slate-600",
+  formCard: "rounded-[20px] border border-[#e9ddd7] bg-white px-0 shadow-[0_14px_30px_rgba(62,36,28,0.12)]",
+  formHeader: "space-y-2",
+  formTitle: "text-2xl font-bold text-slate-900",
+  formSubtitle: "text-base text-slate-600",
   form: "space-y-4",
-  formOptions: "flex items-center justify-between gap-3",
+  formOptions: "hidden",
   rememberWrap: "flex items-center gap-2 text-sm text-slate-600",
   checkbox: "h-4 w-4 rounded border-slate-300 text-[#2e0810] focus:ring-[#2e0810]/30",
   link: "text-sm font-semibold text-[#2e0810] hover:underline",
-  actions: "flex justify-end",
-  footerHint: "text-center text-xs text-slate-500",
+  actions: "flex justify-end pt-1",
+  footerHint: "mt-3 text-center text-[11px] leading-5 text-slate-500",
 } as const;
 
 export const FEATURE_SCAFFOLD_STYLES = {

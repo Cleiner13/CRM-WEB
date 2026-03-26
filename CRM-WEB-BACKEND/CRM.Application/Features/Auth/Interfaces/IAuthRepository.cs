@@ -52,6 +52,10 @@ public interface IAuthRepository
         long usuarioId,
         CancellationToken cancellationToken = default);
 
+    Task<Usuario?> ObtenerUsuarioPorUsernameAsync(
+        string username,
+        CancellationToken cancellationToken = default);
+
     Task CambiarPasswordAsync(
         long usuarioId,
         string? passwordActual,

@@ -48,6 +48,11 @@ public class AuthController : ControllerBase
             return Unauthorized(ApiResponse<string>.Fail("Usuario o contraseña inválidos."));
         }
 
+        if (!result.Activo)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<string>.Fail("Usuario desactivado. Contacte a sistemas."));
+        }
+
         return Ok(ApiResponse<LoginResponse>.Ok(result, "Login exitoso."));
     }
 

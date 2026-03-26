@@ -1,6 +1,6 @@
-﻿import type { ReactNode } from "react";
+import type { ReactNode } from "react";
+import { X } from "lucide-react";
 import { TOAST_STYLES, cx } from "@/config/styles";
-import { Button } from "@/components/ui/Button";
 
 export type ToastVariant = keyof typeof TOAST_STYLES.variants;
 
@@ -30,9 +30,9 @@ export function Toast({
       <div className="flex items-center gap-2">
         {action}
         {onDismiss ? (
-          <Button aria-label="Cerrar notificacion" className="h-8 px-2" onClick={onDismiss} variant="clear">
-            Cerrar
-          </Button>
+          <button aria-label="Cerrar notificacion" className={TOAST_STYLES.dismiss} onClick={onDismiss} type="button">
+            <X size={18} strokeWidth={2.25} />
+          </button>
         ) : null}
       </div>
     </div>

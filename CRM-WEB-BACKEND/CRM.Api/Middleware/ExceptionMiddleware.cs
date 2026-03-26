@@ -23,6 +23,17 @@ public class ExceptionMiddleware
         {
             await _next(context);
         }
+        catch (AppException apiEx)
+        {
+            _logger.LogWarning(apiEx, "Error de negocio controlado.");
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = apiEx.StatusCode;
+
+            var response = ApiResponse<string>.Fail(apiEx.Message);
+            response.Details = apiEx.Details;
+            var json = JsonSerializer.Serialize(response);
+            await context.Response.WriteAsync(json);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Ocurrió una excepción no controlada.");
