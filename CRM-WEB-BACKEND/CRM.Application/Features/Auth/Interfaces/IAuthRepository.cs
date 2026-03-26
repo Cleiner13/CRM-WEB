@@ -62,4 +62,23 @@ public interface IAuthRepository
         string passwordNueva,
         long? usuarioAccionId,
         CancellationToken cancellationToken = default);
+
+    Task<PasswordResetSolicitudResult> SolicitarPasswordResetAsync(
+    string correoPersonal,
+    string codigoHash,
+    int expiraMinutos,
+    string? ipAddress,
+    string? userAgent,
+    CancellationToken cancellationToken = default);
+
+    Task<PasswordResetValidacionResult?> ValidarPasswordResetCodigoAsync(
+        string correoPersonal,
+        string codigoHash,
+        CancellationToken cancellationToken = default);
+
+    Task<PasswordResetConfirmarResult?> ConfirmarPasswordResetAsync(
+        string correoPersonal,
+        string codigoHash,
+        string passwordNueva,
+        CancellationToken cancellationToken = default);
 }

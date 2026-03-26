@@ -3,20 +3,68 @@
   "WorkspaceRootPath": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.infrastructure\\persistence\\repositories\\auth\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|solutionrelative:crm.infrastructure\\persistence\\repositories\\auth\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
       "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.infrastructure\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|solutionrelative:crm.infrastructure\\services\\emailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\common\\interfaces\\iemailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\common\\interfaces\\iemailservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\controllers\\authcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\services\\authservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.infrastructure\\persistence\\repositories\\auth\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|solutionrelative:crm.infrastructure\\persistence\\repositories\\auth\\authrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\interfaces\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\interfaces\\iauthservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\interfaces\\iauthrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\interfaces\\iauthrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\dtos\\passwordresetconfirmarresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\dtos\\passwordresetconfirmarresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\dtos\\passwordresetvalidacionresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\dtos\\passwordresetvalidacionresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\dtos\\passwordresetsolicitudresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\dtos\\passwordresetsolicitudresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\dtos\\refreshtokenvalidationresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\dtos\\refreshtokenvalidationresult.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\requests\\passwordresetconfirmarrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\requests\\passwordresetconfirmarrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\requests\\passwordresetverificarrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\requests\\passwordresetverificarrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\auth\\requests\\passwordresetsolicitudrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\auth\\requests\\passwordresetsolicitudrequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,17 +74,17 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 15,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Program.cs",
               "RelativeDocumentMoniker": "CRM.Api\\Program.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Program.cs",
-              "RelativeToolTip": "CRM.Api\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACgAAAA8AAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Program.cs*",
+              "RelativeToolTip": "CRM.Api\\Program.cs*",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAAAHoAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-03-18T15:25:25.124Z",
               "IsPinned": true,
@@ -44,39 +92,195 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
+              "Title": "EmailService.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Services\\EmailService.cs",
+              "RelativeDocumentMoniker": "CRM.Infrastructure\\Services\\EmailService.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Services\\EmailService.cs",
+              "RelativeToolTip": "CRM.Infrastructure\\Services\\EmailService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAjAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T21:04:03.472Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "IEmailService.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Common\\Interfaces\\IEmailService.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Common\\Interfaces\\IEmailService.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Common\\Interfaces\\IEmailService.cs",
+              "RelativeToolTip": "CRM.Application\\Common\\Interfaces\\IEmailService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T21:03:26.415Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "AuthController.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Controllers\\AuthController.cs",
+              "RelativeDocumentMoniker": "CRM.Api\\Controllers\\AuthController.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Controllers\\AuthController.cs*",
+              "RelativeToolTip": "CRM.Api\\Controllers\\AuthController.cs*",
+              "ViewState": "AgIAAMEAAAAAAAAAAAAcwNsAAABBAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T21:02:45.061Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "AuthService.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Services\\AuthService.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Services\\AuthService.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Services\\AuthService.cs*",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Services\\AuthService.cs*",
+              "ViewState": "AgIAANMAAAAAAAAAAAAIwOUAAAAWAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T21:02:16.185Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "AuthRepository.cs",
               "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
               "RelativeDocumentMoniker": "CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
               "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
               "RelativeToolTip": "CRM.Infrastructure\\Persistence\\Repositories\\Auth\\AuthRepository.cs",
-              "ViewState": "AgIAAEgAAAAAAAAAAAAAAEsAAAAVAAAAAAAAAA==",
+              "ViewState": "AgIAAHkBAAAAAAAAAAAswIcBAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T22:53:07.594Z",
+              "WhenOpened": "2026-03-26T21:01:05.466Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "AuthController.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Controllers\\AuthController.cs",
-              "RelativeDocumentMoniker": "CRM.Api\\Controllers\\AuthController.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Controllers\\AuthController.cs",
-              "RelativeToolTip": "CRM.Api\\Controllers\\AuthController.cs",
-              "ViewState": "AgIAABMAAAAAAAAAAAAAACoAAAAYAAAAAAAAAA==",
+              "DocumentIndex": 7,
+              "Title": "IAuthService.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Interfaces\\IAuthService.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Interfaces\\IAuthService.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Interfaces\\IAuthService.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Interfaces\\IAuthService.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAgwCgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-25T22:21:23.948Z",
+              "WhenOpened": "2026-03-26T21:00:45.89Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 8,
+              "Title": "IAuthRepository.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Interfaces\\IAuthRepository.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Interfaces\\IAuthRepository.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Interfaces\\IAuthRepository.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Interfaces\\IAuthRepository.cs",
+              "ViewState": "AgIAADAAAAAAAAAAAAAmwDkAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T21:00:03.959Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "PasswordResetConfirmarResult.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\PasswordResetConfirmarResult.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Dtos\\PasswordResetConfirmarResult.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\PasswordResetConfirmarResult.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Dtos\\PasswordResetConfirmarResult.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:59:38.459Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "PasswordResetValidacionResult.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\PasswordResetValidacionResult.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Dtos\\PasswordResetValidacionResult.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\PasswordResetValidacionResult.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Dtos\\PasswordResetValidacionResult.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:59:11.85Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "PasswordResetSolicitudResult.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\PasswordResetSolicitudResult.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Dtos\\PasswordResetSolicitudResult.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\PasswordResetSolicitudResult.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Dtos\\PasswordResetSolicitudResult.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:58:48.455Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "RefreshTokenValidationResult.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\RefreshTokenValidationResult.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Dtos\\RefreshTokenValidationResult.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Dtos\\RefreshTokenValidationResult.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Dtos\\RefreshTokenValidationResult.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:58:08.174Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "PasswordResetConfirmarRequest.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Requests\\PasswordResetConfirmarRequest.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Requests\\PasswordResetConfirmarRequest.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Requests\\PasswordResetConfirmarRequest.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Requests\\PasswordResetConfirmarRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:57:51.153Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "PasswordResetVerificarRequest.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Requests\\PasswordResetVerificarRequest.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Requests\\PasswordResetVerificarRequest.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Requests\\PasswordResetVerificarRequest.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Requests\\PasswordResetVerificarRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:57:35.096Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "PasswordResetSolicitudRequest.cs",
+              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Requests\\PasswordResetSolicitudRequest.cs",
+              "RelativeDocumentMoniker": "CRM.Application\\Features\\Auth\\Requests\\PasswordResetSolicitudRequest.cs",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Auth\\Requests\\PasswordResetSolicitudRequest.cs",
+              "RelativeToolTip": "CRM.Application\\Features\\Auth\\Requests\\PasswordResetSolicitudRequest.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAABAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-26T20:57:01.531Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json",
               "RelativeDocumentMoniker": "CRM.Api\\appsettings.json",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json",
-              "RelativeToolTip": "CRM.Api\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAEAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json*",
+              "RelativeToolTip": "CRM.Api\\appsettings.json*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-03-19T23:07:04.087Z",
               "EditorCaption": ""

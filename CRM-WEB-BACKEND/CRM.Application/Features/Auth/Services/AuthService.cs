@@ -1,8 +1,10 @@
 ﻿using CRM.Application.Common.Interfaces;
+using CRM.Application.Common.Models;
 using CRM.Application.Features.Auth.Interfaces;
 using CRM.Application.Features.Auth.Requests;
 using CRM.Application.Features.Auth.Responses;
 using CRM.Domain.Entities;
+using System.Security.Cryptography;
 
 namespace CRM.Application.Features.Auth.Services;
 
@@ -193,5 +195,69 @@ public class AuthService : IAuthService
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .ToList()
         };
+    }
+
+    public async Task SolicitarPasswordResetAsync(
+    string correoPersonal,
+    string? ipAddress,
+    string? userAgent,
+    CancellationToken cancellationToken = default)
+    {
+        // Generar un código de 6 dígitos
+        var codigo = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
+        var codigoHash = ComputeSha256(codigo);
+
+        // Registrar la solicitud en BD
+        var result = await _authRepository.SolicitarPasswordResetAsync(
+            correoPersonal,
+            codigoHash,
+            expiraMinutos: 10,
+            ipAddress,
+            userAgent,
+            cancellationToken);
+
+        // Si el correo pertenece a un usuario, envía el código por correo (microservicio)
+        if (result.UsuarioEncontrado)
+        {
+            // TODO: implementar integración con microservicio de correo.
+            // Por ejemplo: _emailService.SendPasswordResetCode(correoPersonal, codigo, result.ExpiraEn);
+        }
+        // Siempre devolver genérico al frontend para no revelar si existe el usuario.
+    }
+
+    public async Task<bool> ValidarPasswordResetCodigoAsync(
+        string correoPersonal,
+        string codigo,
+        CancellationToken cancellationToken = default)
+    {
+        var codigoHash = ComputeSha256(codigo);
+        var result = await _authRepository.ValidarPasswordResetCodigoAsync(
+            correoPersonal,
+            codigoHash,
+            cancellationToken);
+
+        if (result is null || !result.EsValido)
+            return false;
+
+        return true;
+    }
+
+    public async Task RestablecerPasswordAsync(
+        string correoPersonal,
+        string codigo,
+        string passwordNueva,
+        CancellationToken cancellationToken = default)
+    {
+        var codigoHash = ComputeSha256(codigo);
+        var result = await _authRepository.ConfirmarPasswordResetAsync(
+            correoPersonal,
+            codigoHash,
+            passwordNueva,
+            cancellationToken);
+
+        if (result is null || !result.CambioRealizado)
+        {
+            throw new AppException(StatusCodes.Status400BadRequest, result?.Mensaje ?? "No se pudo actualizar la contraseña.");
+        }
     }
 }

@@ -161,6 +161,70 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<CurrentUserResponse>.Ok(response, "Perfil actual obtenido correctamente."));
     }
 
+    [AllowAnonymous]
+    [HttpPost("forgot-password/request")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ForgotPasswordRequest(
+    [FromBody] PasswordResetSolicitudRequest request,
+    CancellationToken cancellationToken)
+    {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = Request.Headers.UserAgent.ToString();
+
+        await _authService.SolicitarPasswordResetAsync(
+            request.CorreoPersonal,
+            ipAddress,
+            userAgent,
+            cancellationToken);
+
+        // Respuesta genérica
+        return Ok(ApiResponse<string>.Ok("OK", "Si el correo existe, hemos enviado un código de verificación."));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password/verify")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPasswordVerify(
+        [FromBody] PasswordResetVerificarRequest request,
+        CancellationToken cancellationToken)
+    {
+        var esValido = await _authService.ValidarPasswordResetCodigoAsync(
+            request.CorreoPersonal,
+            request.Codigo,
+            cancellationToken);
+
+        if (!esValido)
+        {
+            return BadRequest(ApiResponse<string>.Fail("El código es inválido o ha expirado."));
+        }
+
+        return Ok(ApiResponse<string>.Ok("OK", "Código válido."));
+    }
+
+    [AllowAnonymous]
+    [HttpPost("forgot-password/reset")]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ForgotPasswordReset(
+        [FromBody] PasswordResetConfirmarRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _authService.RestablecerPasswordAsync(
+                request.CorreoPersonal,
+                request.Codigo,
+                request.PasswordNueva,
+                cancellationToken);
+            return Ok(ApiResponse<string>.Ok("OK", "Contraseña actualizada correctamente."));
+        }
+        catch (AppException ex)
+        {
+            return BadRequest(ApiResponse<string>.Fail(ex.Message));
+        }
+    }
+
     private string? GetClaim(string claimType)
     {
         return User.FindFirst(claimType)?.Value;

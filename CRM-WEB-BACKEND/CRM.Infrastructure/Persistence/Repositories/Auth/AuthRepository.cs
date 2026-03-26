@@ -385,6 +385,32 @@ public class AuthRepository : IAuthRepository
         }
     }
 
+    public async Task<PasswordResetSolicitudResult> SolicitarPasswordResetAsync(
+    string correoPersonal,
+    string codigoHash,
+    int expiraMinutos,
+    string? ipAddress,
+    string? userAgent,
+    CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        var parameters = new DynamicParameters();
+        parameters.Add("@CorreoPersonal", correoPersonal, DbType.String);
+        parameters.Add("@CodigoHash", codigoHash, DbType.String);
+        parameters.Add("@ExpiraMinutos", expiraMinutos, DbType.Int32);
+        parameters.Add("@IpAddress", ipAddress, DbType.String);
+        parameters.Add("@UserAgent", userAgent, DbType.String);
+
+        var command = new CommandDefinition(
+            "seg.usp_PasswordReset_Solicitar",
+            parameters,
+            commandType: CommandType.StoredProcedure,
+            cancellationToken: cancellationToken);
+
+        return await connection.QueryFirstAsync<PasswordResetSolicitudResult>(command);
+    }
+
     private static string ComputeSha256(string value)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));

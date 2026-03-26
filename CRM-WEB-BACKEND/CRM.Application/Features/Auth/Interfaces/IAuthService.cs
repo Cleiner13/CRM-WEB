@@ -32,4 +32,21 @@ public interface IAuthService
         string passwordNueva,
         long? usuarioAccionId,
         CancellationToken cancellationToken = default);
+
+    Task SolicitarPasswordResetAsync(
+    string correoPersonal,
+    string? ipAddress,
+    string? userAgent,
+    CancellationToken cancellationToken = default);
+
+    Task<bool> ValidarPasswordResetCodigoAsync(
+        string correoPersonal,
+        string codigo,
+        CancellationToken cancellationToken = default);
+
+    Task RestablecerPasswordAsync(
+        string correoPersonal,
+        string codigo,
+        string passwordNueva,
+        CancellationToken cancellationToken = default);
 }
