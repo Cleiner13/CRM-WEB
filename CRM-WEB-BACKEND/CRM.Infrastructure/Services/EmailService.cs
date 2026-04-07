@@ -1,7 +1,7 @@
 ﻿using CRM.Application.Common.Interfaces;
-using DocuSign.eSign.Model;
+using CRM.Application.Common.Models;
 using Microsoft.Extensions.Options;
-using OpenQA.Selenium;
+
 using System.Net;
 using System.Net.Mail;
 using System.Threading;

@@ -4,7 +4,9 @@ using CRM.Application.Features.Auth.Interfaces;
 using CRM.Application.Features.Auth.Requests;
 using CRM.Application.Features.Auth.Responses;
 using CRM.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace CRM.Application.Features.Auth.Services;
 
@@ -12,13 +14,16 @@ public class AuthService : IAuthService
 {
     private readonly IAuthRepository _authRepository;
     private readonly ITokenService _tokenService;
+    private readonly IEmailService _emailService;
 
     public AuthService(
         IAuthRepository authRepository,
-        ITokenService tokenService)
+        ITokenService tokenService,
+        IEmailService emailService)
     {
         _authRepository = authRepository;
         _tokenService = tokenService;
+        _emailService = emailService;
     }
 
     public async Task<LoginResponse?> LoginAsync(
@@ -159,6 +164,45 @@ public class AuthService : IAuthService
             cancellationToken);
     }
 
+    public async Task<CurrentUserResponse?> ObtenerUsuarioActualAsync(
+        long usuarioId,
+        CancellationToken cancellationToken = default)
+    {
+        var usuario = await _authRepository.ObtenerUsuarioPorIdAsync(usuarioId, cancellationToken);
+        if (usuario is null)
+        {
+            return null;
+        }
+
+        return new CurrentUserResponse
+        {
+            UsuarioId = usuario.UsuarioId,
+            EmpleadoId = usuario.EmpleadoId,
+            Username = usuario.Username,
+            NombreCompleto = usuario.NombreCompleto,
+            EmailCoorporativo = usuario.EmailCoorporativo,
+            Activo = usuario.Activo,
+            RequiereCambioPassword = usuario.RequiereCambioPassword,
+            UltimoLogin = usuario.UltimoLogin,
+            IntentosFallidos = usuario.IntentosFallidos,
+            BloqueadoHasta = usuario.BloqueadoHasta,
+            AreaId = usuario.AreaId,
+            AreaCodigo = usuario.AreaCodigo,
+            AreaNombre = usuario.AreaNombre,
+            CargoId = usuario.CargoId,
+            CargoCodigo = usuario.CargoCodigo,
+            CargoNombre = usuario.CargoNombre,
+            Roles = usuario.Roles
+                .Select(x => x.Nombre)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList(),
+            Permisos = usuario.Permisos
+                .Select(x => x.Codigo)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToList()
+        };
+    }
+
     private static LoginResponse MapLoginResponse(
         Usuario usuario,
         string accessToken,
@@ -219,10 +263,13 @@ public class AuthService : IAuthService
         // Si el correo pertenece a un usuario, envía el código por correo (microservicio)
         if (result.UsuarioEncontrado)
         {
-            // TODO: implementar integración con microservicio de correo.
-            // Por ejemplo: _emailService.SendPasswordResetCode(correoPersonal, codigo, result.ExpiraEn);
-        }
-        // Siempre devolver genérico al frontend para no revelar si existe el usuario.
+            await _emailService.SendPasswordResetCodeAsync(
+                correoPersonal,
+                codigo,
+                result.ExpiraEn!.Value,
+                cancellationToken);
+                }
+                // Siempre devolver genérico al frontend para no revelar si existe el usuario.
     }
 
     public async Task<bool> ValidarPasswordResetCodigoAsync(
@@ -259,5 +306,11 @@ public class AuthService : IAuthService
         {
             throw new AppException(StatusCodes.Status400BadRequest, result?.Mensaje ?? "No se pudo actualizar la contraseña.");
         }
+    }
+
+    private static string ComputeSha256(string value)
+    {
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+        return Convert.ToHexString(bytes);
     }
 }

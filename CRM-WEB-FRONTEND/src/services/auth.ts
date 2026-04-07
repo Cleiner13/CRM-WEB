@@ -15,6 +15,32 @@ type AuthError = Error & {
 
 let currentUser: Usuario | null = null;
 let isRefreshing = false;
+const currentUserListeners = new Set<(user: Usuario | null) => void>();
+
+function mergeUserData(nextUser: Usuario): Usuario {
+  if (!currentUser || currentUser.usuarioId !== nextUser.usuarioId) {
+    return nextUser;
+  }
+
+  return {
+    ...currentUser,
+    ...nextUser,
+    nombreCompleto: nextUser.nombreCompleto || currentUser.nombreCompleto,
+    cargoNombre: nextUser.cargoNombre || currentUser.cargoNombre,
+    areaNombre: nextUser.areaNombre || currentUser.areaNombre,
+    emailCoorporativo: nextUser.emailCoorporativo || currentUser.emailCoorporativo,
+  };
+}
+
+function notifyCurrentUserChanged(): void {
+  currentUserListeners.forEach((listener) => {
+    try {
+      listener(currentUser);
+    } catch (error) {
+      console.warn("authService: current user listener failed", error);
+    }
+  });
+}
 
 function formatBlockedUntil(value: unknown): { iso: string; label: string } | null {
   if (typeof value !== "string" && !(value instanceof Date)) {
@@ -51,7 +77,9 @@ export const authService = {
       localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
 
       const { accessToken, refreshToken, accessTokenExpiraEn, ...user } = response;
-      return user;
+      currentUser = mergeUserData(user);
+      notifyCurrentUserChanged();
+      return currentUser;
     } catch (rawError: any) {
       const error = rawError as AuthError & { status?: number; details?: unknown };
       const message = error?.message || "Error en login";
@@ -119,6 +147,13 @@ export const authService = {
 
       localStorage.setItem(ACCESS_TOKEN_KEY, response.accessToken);
       localStorage.setItem(REFRESH_TOKEN_KEY, response.refreshToken);
+
+      const { accessToken, refreshToken: nextRefreshToken, accessTokenExpiraEn, ...user } = response;
+      currentUser = mergeUserData(user);
+      void accessToken;
+      void nextRefreshToken;
+      void accessTokenExpiraEn;
+      notifyCurrentUserChanged();
     } finally {
       isRefreshing = false;
     }
@@ -131,6 +166,8 @@ export const authService = {
     }
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);
+    currentUser = null;
+    notifyCurrentUserChanged();
   },
 
   isAuthenticated(): boolean {
@@ -139,12 +176,14 @@ export const authService = {
 
   async fetchCurrentUser(): Promise<Usuario> {
     const response = await httpClientGet<Usuario>("/auth/me");
-    currentUser = response;
-    return response;
+    currentUser = mergeUserData(response);
+    notifyCurrentUserChanged();
+    return currentUser;
   },
 
   setCurrentUser(user: Usuario | null): void {
     currentUser = user;
+    notifyCurrentUserChanged();
   },
 
   getCurrentUser(): Usuario | null {
@@ -153,5 +192,13 @@ export const authService = {
 
   getAccessToken(): string | null {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
+  },
+
+  subscribeCurrentUser(listener: (user: Usuario | null) => void): () => void {
+    currentUserListeners.add(listener);
+
+    return () => {
+      currentUserListeners.delete(listener);
+    };
   },
 };

@@ -411,6 +411,42 @@ public class AuthRepository : IAuthRepository
         return await connection.QueryFirstAsync<PasswordResetSolicitudResult>(command);
     }
 
+    public async Task<PasswordResetValidacionResult?> ValidarPasswordResetCodigoAsync(
+    string correoPersonal,
+    string codigoHash,
+    CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var parameters = new DynamicParameters();
+        parameters.Add("@CorreoPersonal", correoPersonal, DbType.String);
+        parameters.Add("@CodigoHash", codigoHash, DbType.String);
+        var command = new CommandDefinition(
+            "seg.usp_PasswordReset_ValidarCodigo",
+            parameters,
+            commandType: CommandType.StoredProcedure,
+            cancellationToken: cancellationToken);
+        return await connection.QueryFirstOrDefaultAsync<PasswordResetValidacionResult>(command);
+    }
+
+    public async Task<PasswordResetConfirmarResult?> ConfirmarPasswordResetAsync(
+        string correoPersonal,
+        string codigoHash,
+        string passwordNueva,
+        CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var parameters = new DynamicParameters();
+        parameters.Add("@CorreoPersonal", correoPersonal, DbType.String);
+        parameters.Add("@CodigoHash", codigoHash, DbType.String);
+        parameters.Add("@PasswordNueva", passwordNueva, DbType.String);
+        var command = new CommandDefinition(
+            "seg.usp_PasswordReset_Confirmar",
+            parameters,
+            commandType: CommandType.StoredProcedure,
+            cancellationToken: cancellationToken);
+        return await connection.QueryFirstOrDefaultAsync<PasswordResetConfirmarResult>(command);
+    }
+
     private static string ComputeSha256(string value)
     {
         var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));

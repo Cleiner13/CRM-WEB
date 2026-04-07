@@ -39,6 +39,11 @@ using CRM.Infrastructure.Persistence.Repositories.RelacionesItemsMaestros;
 using CRM.Application.Features.Auditoria.Interfaces;
 using CRM.Application.Features.Auditoria.Services;
 using CRM.Infrastructure.Persistence.Repositories.Auditoria;
+using CRM.Application.Common.Models;
+using CRM.Application.Features.Profile.Interfaces;
+using CRM.Application.Features.Profile.Services;
+using CRM.Infrastructure.Persistence.Repositories.Profile;
+using CRM.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,7 +65,7 @@ builder.Services.AddSwaggerGen(options =>
         Scheme = "bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Description = "Ingresa el token JWT así: Bearer {tu access token}"
+        Description = "Ingresa el token JWT asÃ­: Bearer {tu access token}"
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -118,11 +123,14 @@ builder.Services.AddScoped<IRelacionesItemsMaestrosService, RelacionesItemsMaest
 builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 builder.Services.AddScoped<IAuditoriaService, AuditoriaService>();
 
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key no está configurado.");
+var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key no estÃ¡ configurado.");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -133,6 +141,21 @@ builder.Services.AddAuthentication(options =>
 {
     options.RequireHttpsMetadata = false;
     options.SaveToken = true;
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrWhiteSpace(accessToken) && path.StartsWithSegments("/permissionHub"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -147,6 +170,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddAuthorization();
+builder.Services.AddSignalR();
 
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
@@ -159,7 +183,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
@@ -181,5 +206,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<PermissionHub>("/permissionHub");
 
 app.Run();

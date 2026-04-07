@@ -1,4 +1,4 @@
-﻿import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   Briefcase,
@@ -14,34 +14,42 @@ import {
 import { NavLink, useLocation } from "react-router-dom";
 import logoMark from "@/assets/logos/Logo.png";
 import { NAVIGATION_MENU, type NavigationItem } from "@/config/navigation";
-import { APP_NAME } from "@/config/constants";
 import { LAYOUT_STYLES, cx } from "@/config/styles";
+import { moduleService, profileService } from "@/services";
+import type { AppModule, MiPerfilPermiso, Usuario } from "@/types";
+import { buildModuleIdMap, canViewModule } from "@/utils";
 
 type ExpandedMap = Record<string, boolean>;
 
+type ResolvedNavigationItem = NavigationItem & {
+  label: string;
+  moduleId?: number;
+  children?: ResolvedNavigationItem[];
+};
+
 type SidebarNodeProps = {
   depth: number;
-  item: NavigationItem;
+  item: ResolvedNavigationItem;
   expandedMap: ExpandedMap;
   onToggle: (id: string) => void;
 };
 
-function hasActiveChild(item: NavigationItem, pathname: string): boolean {
+function hasActiveChild(item: ResolvedNavigationItem, pathname: string): boolean {
   if (item.path && pathname.startsWith(item.path)) {
     return true;
   }
 
-  return (item.children ?? []).some((child) => hasActiveChild(child, pathname));
+  return ((item.children as ResolvedNavigationItem[] | undefined) ?? []).some((child) => hasActiveChild(child, pathname));
 }
 
-function findActiveBranchIds(items: NavigationItem[], pathname: string): string[] {
+function findActiveBranchIds(items: ResolvedNavigationItem[], pathname: string): string[] {
   for (const item of items) {
     if (item.path && pathname.startsWith(item.path)) {
       return [item.id];
     }
 
     if (item.children?.length) {
-      const nested = findActiveBranchIds(item.children, pathname);
+      const nested = findActiveBranchIds(item.children as ResolvedNavigationItem[], pathname);
       if (nested.length > 0) {
         return [item.id, ...nested];
       }
@@ -51,7 +59,7 @@ function findActiveBranchIds(items: NavigationItem[], pathname: string): string[
   return [];
 }
 
-function getFirstPath(item: NavigationItem): string | undefined {
+function getFirstPath(item: ResolvedNavigationItem): string | undefined {
   if (item.path) {
     return item.path;
   }
@@ -64,6 +72,29 @@ function getFirstPath(item: NavigationItem): string | undefined {
   }
 
   return undefined;
+}
+
+function resolveNavigationItem(
+  item: NavigationItem,
+  modulesById: Map<number, AppModule>,
+  permissions: MiPerfilPermiso[],
+): ResolvedNavigationItem | null {
+  const module = item.moduleId ? modulesById.get(item.moduleId) : undefined;
+  const canShowSelf = item.alwaysVisible || !item.moduleId ? true : Boolean(module && canViewModule(permissions, module.moduloId));
+  const resolvedChildren = (item.children ?? [])
+    .map((child) => resolveNavigationItem(child, modulesById, permissions))
+    .filter((child): child is ResolvedNavigationItem => child !== null);
+
+  if (!canShowSelf && resolvedChildren.length === 0) {
+    return null;
+  }
+
+  return {
+    ...item,
+    label: module?.nombre?.trim() || item.label || "Modulo",
+    moduleId: module?.moduloId,
+    children: resolvedChildren,
+  };
 }
 
 function getTopLevelIcon(itemId: string): JSX.Element {
@@ -127,7 +158,7 @@ function SidebarNode({ depth, item, expandedMap, onToggle }: SidebarNodeProps): 
         </button>
         {isOpen ? (
           <ul className={childListClass}>
-            {item.children?.map((child) => (
+            {(item.children as ResolvedNavigationItem[] | undefined)?.map((child) => (
               <SidebarNode depth={depth + 1} expandedMap={expandedMap} item={child} key={child.id} onToggle={onToggle} />
             ))}
           </ul>
@@ -165,9 +196,10 @@ function SidebarNode({ depth, item, expandedMap, onToggle }: SidebarNodeProps): 
 
 export type SidebarProps = {
   compact?: boolean;
+  currentUser?: Usuario | null;
 };
 
-function CompactSidebar(): JSX.Element {
+function CompactSidebar({ items }: { items: ResolvedNavigationItem[] }): JSX.Element {
   const { pathname } = useLocation();
 
   return (
@@ -180,7 +212,7 @@ function CompactSidebar(): JSX.Element {
 
       <nav aria-label="Menu principal compacto" className={LAYOUT_STYLES.sidebarCompactBody}>
         <ul className={LAYOUT_STYLES.sidebarCompactList}>
-          {NAVIGATION_MENU.map((item, index) => {
+          {items.map((item, index) => {
             const href = getFirstPath(item) ?? "/";
             const active = hasActiveChild(item, pathname);
             const showDivider = index === 3 || index === 8;
@@ -190,7 +222,9 @@ function CompactSidebar(): JSX.Element {
                 {showDivider ? <li aria-hidden="true" className={LAYOUT_STYLES.sidebarCompactDivider} /> : null}
                 <li>
                   <NavLink
-                    className={({ isActive }) => cx(LAYOUT_STYLES.sidebarCompactItem, (isActive || active) && LAYOUT_STYLES.sidebarCompactItemActive)}
+                    className={({ isActive }) =>
+                      cx(LAYOUT_STYLES.sidebarCompactItem, (isActive || active) && LAYOUT_STYLES.sidebarCompactItemActive)
+                    }
                     title={item.label}
                     to={href}
                   >
@@ -214,9 +248,54 @@ function CompactSidebar(): JSX.Element {
   );
 }
 
-export function Sidebar({ compact = false }: SidebarProps): JSX.Element {
+export function Sidebar({ compact = false, currentUser }: SidebarProps): JSX.Element {
   const { pathname } = useLocation();
-  const activeBranchIds = useMemo(() => findActiveBranchIds(NAVIGATION_MENU, pathname), [pathname]);
+  const [availableModules, setAvailableModules] = useState<AppModule[]>([]);
+  const [profilePermissions, setProfilePermissions] = useState<MiPerfilPermiso[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    void Promise.all([moduleService.getAll(), profileService.getMyProfile()])
+      .then(([modules, profile]) => {
+        if (!active) {
+          return;
+        }
+
+        setAvailableModules(modules);
+        setProfilePermissions(profile.permisos.filter((permission) => permission.permitido));
+      })
+      .catch(() => {
+        if (!active) {
+          return;
+        }
+
+        setAvailableModules([]);
+        setProfilePermissions([]);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const resolvedNavigation = useMemo<ResolvedNavigationItem[]>(() => {
+    if (availableModules.length === 0) {
+      return NAVIGATION_MENU.filter((item) => item.alwaysVisible).map((item) => ({
+        ...item,
+        label: item.label || "Modulo",
+        children: [],
+      }));
+    }
+
+    const modulesById = buildModuleIdMap(availableModules);
+
+    return NAVIGATION_MENU.map((item) => resolveNavigationItem(item, modulesById, profilePermissions)).filter(
+      (item): item is ResolvedNavigationItem => item !== null,
+    );
+  }, [availableModules, profilePermissions]);
+
+  const activeBranchIds = useMemo(() => findActiveBranchIds(resolvedNavigation, pathname), [pathname, resolvedNavigation]);
   const [expandedMap, setExpandedMap] = useState<ExpandedMap>(() => {
     const initial: ExpandedMap = {};
     for (const id of activeBranchIds) {
@@ -249,8 +328,11 @@ export function Sidebar({ compact = false }: SidebarProps): JSX.Element {
   };
 
   if (compact) {
-    return <CompactSidebar />;
+    return <CompactSidebar items={resolvedNavigation} />;
   }
+
+  const mainRole = currentUser?.roles?.[0] || "Usuario";
+  const cargoName = currentUser?.cargoNombre || "Sin cargo asignado";
 
   return (
     <aside className={LAYOUT_STYLES.sidebar}>
@@ -258,15 +340,15 @@ export function Sidebar({ compact = false }: SidebarProps): JSX.Element {
         <div className={LAYOUT_STYLES.sidebarBrandWrap}>
           <img alt="ALMPES" className={LAYOUT_STYLES.sidebarBrandLogo} src={logoMark} />
           <div className="min-w-0">
-            <p className={LAYOUT_STYLES.sidebarBrandTitle}>{APP_NAME}</p>
-            <p className={LAYOUT_STYLES.sidebarBrandSubtitle}>ERP / CRM Administrativo</p>
+            <p className={LAYOUT_STYLES.sidebarUserRoleValue}>{mainRole}</p>
+            <p className={LAYOUT_STYLES.sidebarUserCargoValue}>{cargoName}</p>
           </div>
         </div>
       </div>
 
       <nav aria-label="Menu principal" className={LAYOUT_STYLES.sidebarBody}>
         <ul className={LAYOUT_STYLES.sidebarGroup}>
-          {NAVIGATION_MENU.map((item) => (
+          {resolvedNavigation.map((item) => (
             <Fragment key={item.id}>
               <SidebarNode depth={0} expandedMap={expandedMap} item={item} onToggle={handleToggle} />
             </Fragment>

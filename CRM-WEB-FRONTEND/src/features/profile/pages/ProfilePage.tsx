@@ -1,172 +1,248 @@
-﻿import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PROFILE_PAGE_STYLES } from "@/config/styles";
 import { PageHeader } from "@/components/layout";
-import { Badge, Button, Card, Input, Pagination, Select, Table, Textarea } from "@/components/ui";
+import { ErrorState, LoadingState } from "@/components/common";
+import { Badge, Button, Card, Input, Pagination, Table, Textarea } from "@/components/ui";
 import type { TableColumn } from "@/components/ui";
 import { usePagination } from "@/hooks";
+import type { MiPerfilPermiso, MiPerfilResponse, MiPerfilRol } from "@/types";
+import { profileService } from "@/services";
 
-type ActivityRow = {
-  id: string;
-  accion: string;
-  modulo: string;
-  fecha: string;
-  estado: "OK" | "Pendiente";
-};
+type RowRol = MiPerfilRol;
+type RowPermiso = MiPerfilPermiso;
 
-const ACTIVITY_ROWS: ActivityRow[] = [
-  { id: "1", accion: "Actualizo datos de contacto", modulo: "Mi Perfil", fecha: "2026-02-24 09:10", estado: "OK" },
-  { id: "2", accion: "Cambio de contrasena solicitado", modulo: "Seguridad", fecha: "2026-02-23 17:42", estado: "OK" },
-  { id: "3", accion: "Exporto reporte", modulo: "Gerencia", fecha: "2026-02-23 14:20", estado: "Pendiente" },
-  { id: "4", accion: "Ingreso al sistema", modulo: "Auth", fecha: "2026-02-23 08:01", estado: "OK" },
-  { id: "5", accion: "Actualizo firma", modulo: "Mi Perfil", fecha: "2026-02-22 12:34", estado: "OK" },
-] as const;
+function formatDate(value?: string | null, withTime = false): string {
+  if (!value) return "-";
+
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+
+  return new Intl.DateTimeFormat("es-PE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    ...(withTime
+      ? {
+          hour: "2-digit",
+          minute: "2-digit",
+        }
+      : {}),
+  }).format(parsed);
+}
+
+function formatCurrency(value?: number | null): string {
+  if (value == null) return "-";
+
+  return new Intl.NumberFormat("es-PE", {
+    style: "currency",
+    currency: "PEN",
+    minimumFractionDigits: 2,
+  }).format(value);
+}
+
+function getInitials(name?: string | null): string {
+  if (!name) return "AU";
+
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0))
+    .join("")
+    .toUpperCase();
+}
 
 export function ProfilePage(): JSX.Element {
-  const [form, setForm] = useState({
-    nombres: "ALMPES User",
-    correo: "user@almpes.local",
-    telefono: "+51 999 999 999",
-    area: "Administracion",
-    cargo: "Supervisor",
-    bio: "Responsable del seguimiento operativo y coordinacion con administracion.",
-  });
+  const [profile, setProfile] = useState<MiPerfilResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const { page, pageSize, paginatedItems, setPage, setPageSize, total } = usePagination({ items: ACTIVITY_ROWS });
+  const loadProfile = async (): Promise<void> => {
+    setIsLoading(true);
+    setError(null);
 
-  const columns = useMemo<Array<TableColumn<ActivityRow>>>(
+    try {
+      const response = await profileService.getMyProfile();
+      setProfile(response);
+    } catch (rawError) {
+      const message = rawError instanceof Error ? rawError.message : "No se pudo obtener la informacion del perfil.";
+      setError(message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void loadProfile();
+  }, []);
+
+  const rolesColumns = useMemo<Array<TableColumn<RowRol>>>(
     () => [
-      { key: "accion", header: "Accion", render: (row) => row.accion },
-      { key: "modulo", header: "Modulo", render: (row) => row.modulo },
-      { key: "fecha", header: "Fecha", render: (row) => row.fecha },
+      { key: "rol", header: "Rol", render: (row) => row.rolNombre || "-" },
+      { key: "codigo", header: "Codigo", render: (row) => row.rolCodigo || "-" },
       {
         key: "estado",
         header: "Estado",
-        render: (row) => <Badge variant={row.estado === "OK" ? "success" : "warning"}>{row.estado}</Badge>,
+        render: (row) => <Badge variant={row.usuarioRolActivo ? "success" : "warning"}>{row.usuarioRolActivo ? "Activo" : "Inactivo"}</Badge>,
       },
     ],
     [],
   );
 
+  const permisosColumns = useMemo<Array<TableColumn<RowPermiso>>>(
+    () => [
+      { key: "modulo", header: "Modulo", render: (row) => row.moduloNombre || row.moduloCodigo || "-" },
+      { key: "permiso", header: "Permiso", render: (row) => row.permisoNombre || row.permisoCodigo || "-" },
+      {
+        key: "permitido",
+        header: "Acceso",
+        render: (row) => <Badge variant={row.permitido ? "success" : "warning"}>{row.permitido ? "Permitido" : "Restringido"}</Badge>,
+      },
+    ],
+    [],
+  );
+
+  const {
+    page: permisosPage,
+    pageSize: permisosPageSize,
+    paginatedItems: permisosPaginados,
+    setPage: setPermisosPage,
+    setPageSize: setPermisosPageSize,
+    total: permisosTotal,
+  } = usePagination<RowPermiso>({
+    items: profile?.permisos ?? [],
+    initialPageSize: 20,
+  });
+
+  if (isLoading) {
+    return <LoadingState description="Estamos cargando su informacion personal y accesos." title="Cargando mi perfil" />;
+  }
+
+  if (error || !profile?.resumen) {
+    return (
+      <ErrorState
+        description={error || "No se encontro informacion disponible para este perfil."}
+        onRetry={() => {
+          void loadProfile();
+        }}
+        title="No se pudo cargar Mi Perfil"
+      />
+    );
+  }
+
+  const { resumen, roles } = profile;
+  const summaryName = resumen.nombreCompleto || resumen.usuario || "Usuario";
+  const summaryEmail = resumen.correoCorporativo || resumen.correoPersonal || "-";
+  const summaryRole = roles[0]?.rolNombre || "Sin rol asignado";
+  const summaryArea = resumen.contratacionAreaNombre || resumen.postulacionAreaNombre || "-";
+  const summaryCargo = resumen.contratacionCargoNombre || resumen.postulacionCargoNombre || "-";
+  const summaryEstado = resumen.estadoNombre || "No definido";
+  const summaryPhoto = resumen.fotoUrl?.trim();
+
   return (
     <div className={PROFILE_PAGE_STYLES.page}>
       <PageHeader
         actions={
-          <>
-            <Button variant="clear">Cancelar</Button>
-            <Button variant="save">Guardar cambios</Button>
-          </>
+          <Button onClick={() => void loadProfile()} variant="search">
+            Actualizar
+          </Button>
         }
-        subtitle="Gestion de datos del usuario autenticado"
+        subtitle="Consulta de datos del usuario autenticado desde el nuevo endpoint de perfil"
         tag="Mi Perfil"
         title="Perfil de usuario"
       />
 
       <section className={PROFILE_PAGE_STYLES.grid}>
         <div className={PROFILE_PAGE_STYLES.stack}>
-          <Card subtitle="Informacion del usuario y permisos base" title="Resumen">
+          <Card subtitle="Informacion principal del usuario autenticado" title="Resumen">
             <div className={PROFILE_PAGE_STYLES.summaryCard}>
               <div className={PROFILE_PAGE_STYLES.avatarWrap}>
-                <div className={PROFILE_PAGE_STYLES.avatar}>AU</div>
+                {summaryPhoto ? (
+                  <img alt={summaryName} className={PROFILE_PAGE_STYLES.avatar} src={summaryPhoto} />
+                ) : (
+                  <div className={PROFILE_PAGE_STYLES.avatar}>{getInitials(summaryName)}</div>
+                )}
                 <div>
-                  <p className={PROFILE_PAGE_STYLES.summaryName}>{form.nombres}</p>
-                  <p className={PROFILE_PAGE_STYLES.summaryMeta}>{form.correo}</p>
-                  <p className={PROFILE_PAGE_STYLES.summaryMeta}>{form.cargo} · {form.area}</p>
+                  <p className={PROFILE_PAGE_STYLES.summaryName}>{summaryName}</p>
+                  <p className={PROFILE_PAGE_STYLES.summaryMeta}>{summaryEmail}</p>
+                  <p className={PROFILE_PAGE_STYLES.summaryMeta}>{summaryCargo} · {summaryArea}</p>
                 </div>
               </div>
               <div className={PROFILE_PAGE_STYLES.tagRow}>
-                <span className={PROFILE_PAGE_STYLES.tag}>Acceso ERP/CRM</span>
-                <span className={PROFILE_PAGE_STYLES.tag}>Rol Supervisor</span>
-                <span className={PROFILE_PAGE_STYLES.tag}>Sesion activa</span>
+                <span className={PROFILE_PAGE_STYLES.tag}>{summaryRole}</span>
+                <span className={PROFILE_PAGE_STYLES.tag}>{summaryEstado}</span>
+                <span className={PROFILE_PAGE_STYLES.tag}>Ultimo acceso: {formatDate(resumen.ultimoLogin, true)}</span>
               </div>
             </div>
           </Card>
 
-          <Card subtitle="Configuraciones frecuentes" title="Preferencias">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 p-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-800">Notificaciones por correo</p>
-                  <p className="text-xs text-slate-500">Resumen diario de actividad y alertas.</p>
-                </div>
-                <Badge variant="success">Activas</Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-xl border border-slate-200 p-3">
-                <div>
-                  <p className="text-sm font-semibold text-slate-800">Doble verificacion</p>
-                  <p className="text-xs text-slate-500">Seguridad de acceso al sistema.</p>
-                </div>
-                <Badge variant="warning">Pendiente</Badge>
-              </div>
+          <Card subtitle="Asignaciones del usuario en el sistema" title="Roles asignados">
+            <Table columns={rolesColumns} emptyMessage="No hay roles asignados." getRowKey={(row) => String(row.usuarioRolId)} rows={roles} />
+          </Card>
+
+          <Card subtitle="Tabla estandar con paginacion" title="Permisos efectivos">
+            <div className="space-y-4">
+              <Table
+                columns={permisosColumns}
+                emptyMessage="No hay permisos efectivos para mostrar."
+                getRowKey={(row) => `${row.moduloId}-${row.permisoId}`}
+                rows={permisosPaginados}
+              />
+              <Pagination
+                onPageChange={setPermisosPage}
+                onPageSizeChange={(value) => {
+                  setPermisosPageSize(value);
+                  setPermisosPage(1);
+                }}
+                page={permisosPage}
+                pageSize={permisosPageSize}
+                total={permisosTotal}
+              />
             </div>
           </Card>
         </div>
 
         <div className={PROFILE_PAGE_STYLES.activityStack}>
-          <Card subtitle="Actualice su informacion personal" title="Datos personales">
+          <Card subtitle="Datos consultados desde su ficha laboral" title="Datos personales">
             <div className={PROFILE_PAGE_STYLES.formGrid}>
-              <Input
-                containerClassName={PROFILE_PAGE_STYLES.full}
-                label="Nombres y apellidos"
-                onChange={(event) => setForm((current) => ({ ...current, nombres: event.target.value }))}
-                value={form.nombres}
-              />
-              <Input
-                label="Correo"
-                onChange={(event) => setForm((current) => ({ ...current, correo: event.target.value }))}
-                type="email"
-                value={form.correo}
-              />
-              <Input
-                label="Telefono"
-                onChange={(event) => setForm((current) => ({ ...current, telefono: event.target.value }))}
-                value={form.telefono}
-              />
-              <Select
-                label="Area"
-                onChange={(event) => setForm((current) => ({ ...current, area: event.target.value }))}
-                options={[
-                  { label: "Administracion", value: "Administracion" },
-                  { label: "Ventas", value: "Ventas" },
-                  { label: "TI", value: "TI" },
-                ]}
-                value={form.area}
-              />
-              <Select
-                label="Cargo"
-                onChange={(event) => setForm((current) => ({ ...current, cargo: event.target.value }))}
-                options={[
-                  { label: "Supervisor", value: "Supervisor" },
-                  { label: "Analista", value: "Analista" },
-                  { label: "Coordinador", value: "Coordinador" },
-                ]}
-                value={form.cargo}
-              />
-              <Textarea
-                containerClassName={PROFILE_PAGE_STYLES.full}
-                label="Bio"
-                onChange={(event) => setForm((current) => ({ ...current, bio: event.target.value }))}
-                value={form.bio}
-              />
-            </div>
-            <div className={PROFILE_PAGE_STYLES.actions}>
-              <Button variant="clear">Limpiar</Button>
-              <Button variant="save">Guardar perfil</Button>
+              <Input containerClassName={PROFILE_PAGE_STYLES.full} disabled label="Nombres y apellidos" value={summaryName} />
+              <Input disabled label="Usuario" value={resumen.usuario || "-"} />
+              <Input disabled label="Tipo de documento" value={resumen.tipoDocumentoNombre || "-"} />
+              <Input disabled label="Correo corporativo" value={resumen.correoCorporativo || "-"} />
+              <Input disabled label="Correo personal" value={resumen.correoPersonal || "-"} />
+              <Input disabled label="Celular personal" value={resumen.celularPersonal || "-"} />
+              <Input disabled label="Fecha de nacimiento" value={formatDate(resumen.fechaNacimiento)} />
+              <Input disabled label="Edad" value={resumen.edad || "-"} />
+              <Input disabled label="Sexo" value={resumen.sexoNombre || "-"} />
+              <Input disabled label="Estado civil" value={resumen.estadoCivilNombre || "-"} />
+              <Input disabled label="Nivel de estudios" value={resumen.nivelEstudiosNombre || "-"} />
+              <Input disabled label="Nacionalidad" value={resumen.nacionalidad || "-"} />
+              <Input disabled label="Departamento" value={resumen.departamento || "-"} />
+              <Input disabled label="Provincia" value={resumen.provincia || "-"} />
+              <Input disabled label="Distrito" value={resumen.distrito || "-"} />
+              <Input containerClassName={PROFILE_PAGE_STYLES.full} disabled label="Direccion" value={resumen.direccion || "-"} />
+              <Textarea containerClassName={PROFILE_PAGE_STYLES.full} disabled label="Referencia" value={resumen.direccionReferencia || "-"} />
             </div>
           </Card>
 
-          <Card subtitle="Tabla de movimientos recientes" title="Actividad reciente">
-            <div className="space-y-4">
-              <Table columns={columns} getRowKey={(row) => row.id} rows={paginatedItems} />
-              <Pagination
-                onPageChange={setPage}
-                onPageSizeChange={(value) => {
-                  setPageSize(value);
-                  setPage(1);
-                }}
-                page={page}
-                pageSize={pageSize}
-                total={total}
-              />
+          <Card subtitle="Informacion contractual y laboral actual" title="Datos laborales">
+            <div className={PROFILE_PAGE_STYLES.formGrid}>
+              <Input disabled label="Area" value={summaryArea} />
+              <Input disabled label="Cargo" value={summaryCargo} />
+              <Input disabled label="Campania" value={resumen.campaniaNombre || "-"} />
+              <Input disabled label="Producto" value={resumen.productoNombre || "-"} />
+              <Input disabled label="Jefe inmediato" value={resumen.jefeNombreCompleto || "-"} />
+              <Input disabled label="Tipo de contrato" value={resumen.tipoContratoNombre || "-"} />
+              <Input disabled label="Jornada" value={resumen.jornadaNombre || "-"} />
+              <Input disabled label="Turno" value={resumen.turnoNombre || "-"} />
+              <Input disabled label="Fecha de ingreso" value={formatDate(resumen.fechaIngreso)} />
+              <Input disabled label="Fecha inicio contrato" value={formatDate(resumen.fechaInicioContrato)} />
+              <Input disabled label="Fecha fin contrato" value={formatDate(resumen.fechaFinContrato)} />
+              <Input disabled label="Sueldo" value={formatCurrency(resumen.sueldo)} />
+              <Input disabled label="Banco" value={resumen.bancoNombre || "-"} />
+              <Input disabled label="Numero de cuenta" value={resumen.numeroCuenta || "-"} />
+              <Input disabled label="Empresa" value={resumen.empresaNombre || "-"} />
+              <Input disabled label="Estado / Subestado" value={[resumen.estadoNombre, resumen.subEstadoNombre].filter(Boolean).join(" / ") || "-"} />
             </div>
           </Card>
         </div>

@@ -3,8 +3,10 @@ using CRM.Application.Common.Models;
 using CRM.Application.Features.Usuarios.Interfaces;
 using CRM.Application.Features.Usuarios.Requests;
 using CRM.Application.Features.Usuarios.Responses;
+using CRM.Api.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CRM.Api.Controllers;
 
@@ -15,13 +17,16 @@ public class UsuariosController : ControllerBase
 {
     private readonly IUsuariosService _usuariosService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IHubContext<PermissionHub> _permissionHubContext;
 
     public UsuariosController(
         IUsuariosService usuariosService,
-        ICurrentUserService currentUserService)
+        ICurrentUserService currentUserService,
+        IHubContext<PermissionHub> permissionHubContext)
     {
         _usuariosService = usuariosService;
         _currentUserService = currentUserService;
+        _permissionHubContext = permissionHubContext;
     }
 
     [HttpGet]
@@ -84,6 +89,11 @@ public class UsuariosController : ControllerBase
             userAgent,
             cancellationToken);
 
+        await _permissionHubContext
+            .Clients
+            .Group($"user-{id}")
+            .SendAsync("PermissionChanged", new { UserId = id, Action = "PermisoAsignado" });
+
         return Ok(ApiResponse<UsuarioPermisoAsignadoResponse>.Ok(result, "Permiso asignado correctamente."));
     }
 
@@ -103,6 +113,11 @@ public class UsuariosController : ControllerBase
             ipAddress,
             userAgent,
             cancellationToken);
+
+        await _permissionHubContext
+            .Clients
+            .Group($"user-{id}")
+            .SendAsync("PermissionChanged", new { UserId = id, Action = "PermisoDesactivado" });
 
         return Ok(ApiResponse<OperacionResponse>.Ok(result, result.Mensaje));
     }
@@ -124,6 +139,11 @@ public class UsuariosController : ControllerBase
             userAgent,
             cancellationToken);
 
+        await _permissionHubContext
+            .Clients
+            .Group($"user-{id}")
+            .SendAsync("PermissionChanged", new { UserId = id, Action = "RolAsignado" });
+
         return Ok(ApiResponse<UsuarioRolAsignadoResponse>.Ok(result, "Rol asignado correctamente."));
     }
 
@@ -144,6 +164,11 @@ public class UsuariosController : ControllerBase
             userAgent,
             cancellationToken);
 
+        await _permissionHubContext
+            .Clients
+            .Group($"user-{id}")
+            .SendAsync("PermissionChanged", new { UserId = id, Action = "RolQuitado" });
+
         return Ok(ApiResponse<OperacionResponse>.Ok(result, result.Mensaje));
     }
 
@@ -162,6 +187,11 @@ public class UsuariosController : ControllerBase
             userAgent,
             cancellationToken);
 
+        await _permissionHubContext
+            .Clients
+            .Group($"user-{id}")
+            .SendAsync("UserStatusChanged", new { UserId = id, IsActive = false });
+
         return Ok(ApiResponse<OperacionResponse>.Ok(result, result.Mensaje));
     }
 
@@ -179,6 +209,11 @@ public class UsuariosController : ControllerBase
             ipAddress,
             userAgent,
             cancellationToken);
+
+        await _permissionHubContext
+            .Clients
+            .Group($"user-{id}")
+            .SendAsync("UserStatusChanged", new { UserId = id, IsActive = true });
 
         return Ok(ApiResponse<OperacionResponse>.Ok(result, result.Mensaje));
     }
@@ -205,6 +240,14 @@ public class UsuariosController : ControllerBase
             request,
             _currentUserService.UsuarioId,
             cancellationToken);
+
+        if (result.UsuarioId.HasValue && result.Desactivado == true)
+        {
+            await _permissionHubContext
+                .Clients
+                .Group($"user-{result.UsuarioId.Value}")
+                .SendAsync("UserStatusChanged", new { UserId = result.UsuarioId.Value, IsActive = false });
+        }
 
         return Ok(ApiResponse<UsuarioDesactivarEmpleadoResponse>.Ok(result, "Proceso ejecutado correctamente."));
     }

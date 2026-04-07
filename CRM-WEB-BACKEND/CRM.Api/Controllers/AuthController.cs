@@ -1,4 +1,3 @@
-﻿using System.Security.Claims;
 using CRM.Application.Common.Interfaces;
 using CRM.Application.Common.Models;
 using CRM.Application.Features.Auth.Interfaces;
@@ -45,7 +44,7 @@ public class AuthController : ControllerBase
 
         if (result is null)
         {
-            return Unauthorized(ApiResponse<string>.Fail("Usuario o contraseña inválidos."));
+            return Unauthorized(ApiResponse<string>.Fail("Usuario o contrase�a inv�lidos."));
         }
 
         if (!result.Activo)
@@ -77,7 +76,7 @@ public class AuthController : ControllerBase
 
         if (result is null)
         {
-            return Unauthorized(ApiResponse<string>.Fail("Refresh token inválido o expirado."));
+            return Unauthorized(ApiResponse<string>.Fail("Refresh token inv�lido o expirado."));
         }
 
         return Ok(ApiResponse<LoginResponse>.Ok(result, "Token renovado correctamente."));
@@ -125,38 +124,25 @@ public class AuthController : ControllerBase
         return Ok(ApiResponse<string>.Ok("OK", "Password actualizado correctamente."));
     }
 
-    [Authorize]
+        [Authorize]
     [HttpGet("me")]
     [ProducesResponseType(typeof(ApiResponse<CurrentUserResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status401Unauthorized)]
-    public IActionResult Me()
+    public async Task<IActionResult> Me(CancellationToken cancellationToken)
     {
-        if (!_currentUserService.IsAuthenticated)
+        if (!_currentUserService.IsAuthenticated || !_currentUserService.UsuarioId.HasValue)
         {
             return Unauthorized(ApiResponse<string>.Fail("No autenticado."));
         }
 
-        var response = new CurrentUserResponse
+        var response = await _authService.ObtenerUsuarioActualAsync(
+            _currentUserService.UsuarioId.Value,
+            cancellationToken);
+
+        if (response is null)
         {
-            UsuarioId = _currentUserService.UsuarioId,
-            EmpleadoId = _currentUserService.EmpleadoId,
-            Username = _currentUserService.Username,
-            NombreCompleto = GetClaim("NombreCompleto"),
-            EmailCoorporativo = GetClaim("EmailCoorporativo"),
-            Activo = GetBoolClaim("Activo"),
-            RequiereCambioPassword = GetBoolClaim("RequiereCambioPassword"),
-            UltimoLogin = GetDateTimeClaim("UltimoLogin"),
-            IntentosFallidos = GetIntClaim("IntentosFallidos"),
-            BloqueadoHasta = GetDateTimeClaim("BloqueadoHasta"),
-            AreaId = GetLongClaim("AreaId"),
-            AreaCodigo = GetClaim("AreaCodigo"),
-            AreaNombre = GetClaim("AreaNombre"),
-            CargoId = GetLongClaim("CargoId"),
-            CargoCodigo = GetClaim("CargoCodigo"),
-            CargoNombre = GetClaim("CargoNombre"),
-            Roles = _currentUserService.Roles,
-            Permisos = _currentUserService.Permisos
-        };
+            return Unauthorized(ApiResponse<string>.Fail("Usuario no encontrado o ya no disponible."));
+        }
 
         return Ok(ApiResponse<CurrentUserResponse>.Ok(response, "Perfil actual obtenido correctamente."));
     }
@@ -177,8 +163,8 @@ public class AuthController : ControllerBase
             userAgent,
             cancellationToken);
 
-        // Respuesta genérica
-        return Ok(ApiResponse<string>.Ok("OK", "Si el correo existe, hemos enviado un código de verificación."));
+        // Respuesta gen�rica
+        return Ok(ApiResponse<string>.Ok("OK", "Si el correo existe, hemos enviado un c�digo de verificaci�n."));
     }
 
     [AllowAnonymous]
@@ -196,10 +182,10 @@ public class AuthController : ControllerBase
 
         if (!esValido)
         {
-            return BadRequest(ApiResponse<string>.Fail("El código es inválido o ha expirado."));
+            return BadRequest(ApiResponse<string>.Fail("El c�digo es inv�lido o ha expirado."));
         }
 
-        return Ok(ApiResponse<string>.Ok("OK", "Código válido."));
+        return Ok(ApiResponse<string>.Ok("OK", "C�digo v�lido."));
     }
 
     [AllowAnonymous]
@@ -217,40 +203,11 @@ public class AuthController : ControllerBase
                 request.Codigo,
                 request.PasswordNueva,
                 cancellationToken);
-            return Ok(ApiResponse<string>.Ok("OK", "Contraseña actualizada correctamente."));
+            return Ok(ApiResponse<string>.Ok("OK", "Contrase�a actualizada correctamente."));
         }
         catch (AppException ex)
         {
             return BadRequest(ApiResponse<string>.Fail(ex.Message));
         }
-    }
-
-    private string? GetClaim(string claimType)
-    {
-        return User.FindFirst(claimType)?.Value;
-    }
-
-    private long? GetLongClaim(string claimType)
-    {
-        var value = User.FindFirst(claimType)?.Value;
-        return long.TryParse(value, out var result) ? result : null;
-    }
-
-    private int GetIntClaim(string claimType)
-    {
-        var value = User.FindFirst(claimType)?.Value;
-        return int.TryParse(value, out var result) ? result : 0;
-    }
-
-    private bool GetBoolClaim(string claimType)
-    {
-        var value = User.FindFirst(claimType)?.Value;
-        return bool.TryParse(value, out var result) && result;
-    }
-
-    private DateTime? GetDateTimeClaim(string claimType)
-    {
-        var value = User.FindFirst(claimType)?.Value;
-        return DateTime.TryParse(value, out var result) ? result : null;
     }
 }

@@ -33,6 +33,10 @@ public interface IAuthService
         long? usuarioAccionId,
         CancellationToken cancellationToken = default);
 
+    Task<CurrentUserResponse?> ObtenerUsuarioActualAsync(
+        long usuarioId,
+        CancellationToken cancellationToken = default);
+
     Task SolicitarPasswordResetAsync(
     string correoPersonal,
     string? ipAddress,

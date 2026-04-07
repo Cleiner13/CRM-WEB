@@ -1,10 +1,14 @@
-ï»¿using CRM.Application.Common.Interfaces;
+using CRM.Application.Common.Interfaces;
 using CRM.Application.Common.Models;
 using CRM.Application.Features.Empleados.Interfaces;
 using CRM.Application.Features.Empleados.Requests;
 using CRM.Application.Features.Empleados.Responses;
+using CRM.Application.Features.Usuarios.Interfaces;
+using CRM.Application.Features.Usuarios.Requests;
+using CRM.Api.Hubs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CRM.Api.Controllers;
 
@@ -14,14 +18,20 @@ namespace CRM.Api.Controllers;
 public class EmpleadosController : ControllerBase
 {
     private readonly IEmpleadosService _empleadosService;
+    private readonly IUsuariosService _usuariosService;
     private readonly ICurrentUserService _currentUserService;
+    private readonly IHubContext<PermissionHub> _permissionHubContext;
 
     public EmpleadosController(
         IEmpleadosService empleadosService,
-        ICurrentUserService currentUserService)
+        IUsuariosService usuariosService,
+        ICurrentUserService currentUserService,
+        IHubContext<PermissionHub> permissionHubContext)
     {
         _empleadosService = empleadosService;
+        _usuariosService = usuariosService;
         _currentUserService = currentUserService;
+        _permissionHubContext = permissionHubContext;
     }
 
     [HttpGet]
@@ -116,6 +126,19 @@ public class EmpleadosController : ControllerBase
             _currentUserService.UsuarioId,
             cancellationToken);
 
+        var usuarioResult = await _usuariosService.DesactivarUsuarioPorEmpleadoAsync(
+            new DesactivarUsuarioEmpleadoRequest { EmpleadoId = id },
+            _currentUserService.UsuarioId,
+            cancellationToken);
+
+        if (usuarioResult.UsuarioId.HasValue && usuarioResult.Desactivado == true)
+        {
+            await _permissionHubContext
+                .Clients
+                .Group($"user-{usuarioResult.UsuarioId.Value}")
+                .SendAsync("UserStatusChanged", new { UserId = usuarioResult.UsuarioId.Value, IsActive = false });
+        }
+
         return Ok(ApiResponse<EmpleadoOperacionResponse>.Ok(
             result,
             result.Mensaje));
@@ -133,7 +156,7 @@ public class EmpleadosController : ControllerBase
 
         return Ok(ApiResponse<EmpleadoValidacionEliminacionResponse>.Ok(
             result,
-            "ValidaciÃ³n obtenida correctamente."));
+            "Validación obtenida correctamente."));
     }
 
     [HttpDelete("{id:long}/eliminar-fisico")]
@@ -168,7 +191,7 @@ public class EmpleadosController : ControllerBase
 
         return Ok(ApiResponse<List<EmpleadoCampaniaResponse>>.Ok(
             result,
-            "CampaÃ±as sincronizadas correctamente."));
+            "Campañas sincronizadas correctamente."));
     }
 
     [HttpPost("validar-tipo-producto-campanias")]
@@ -183,6 +206,6 @@ public class EmpleadosController : ControllerBase
 
         return Ok(ApiResponse<ValidarTipoProductoCampaniasResponse>.Ok(
             result,
-            result.Mensaje ?? "ValidaciÃ³n correcta."));
+            result.Mensaje ?? "Validación correcta."));
     }
 }

@@ -8,6 +8,7 @@ import { AUTH_STYLES } from "@/config/styles";
 import { ROUTES } from "@/config/routes";
 import { Button, Card, Input, Modal, Toast } from "@/components/ui";
 import { ChangePasswordForm } from "@/features/auth/components/ChangePasswordForm";
+import { ForgotPasswordFlow } from "@/features/auth/components/ForgotPasswordFlow";
 import { authService } from "@/services";
 import { isDNI, isRequired } from "@/utils";
 
@@ -78,6 +79,9 @@ export function LoginPage(): JSX.Element {
   const [blockedUntil, setBlockedUntil] = useState<string | null>(null);
   const [remainingTime, setRemainingTime] = useState<string | null>(null);
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
+  const [forgotPasswordDirty, setForgotPasswordDirty] = useState(false);
+  const [isForgotPasswordCloseConfirmOpen, setIsForgotPasswordCloseConfirmOpen] = useState(false);
 
   const locationState = (location.state as LocationState | null) ?? null;
   const redirectTo = locationState?.from?.pathname || ROUTES.dashboard;
@@ -109,6 +113,26 @@ export function LoginPage(): JSX.Element {
       null,
       "Cerrar"
     );
+  };
+
+  const openForgotPasswordModal = (): void => {
+    closeModal();
+    setIsForgotPasswordModalOpen(true);
+  };
+
+  const closeForgotPasswordModal = (): void => {
+    if (forgotPasswordDirty) {
+      setIsForgotPasswordCloseConfirmOpen(true);
+      return;
+    }
+
+    setIsForgotPasswordModalOpen(false);
+  };
+
+  const forceCloseForgotPasswordModal = (): void => {
+    setIsForgotPasswordCloseConfirmOpen(false);
+    setForgotPasswordDirty(false);
+    setIsForgotPasswordModalOpen(false);
   };
 
   const openModal = (
@@ -270,6 +294,7 @@ export function LoginPage(): JSX.Element {
                     className="h-14 rounded-[16px] bg-[linear-gradient(135deg,#4d0b12,#7f1d1d)] text-lg font-semibold shadow-[0_10px_24px_rgba(77,11,18,0.25)] hover:brightness-110"
                     fullWidth
                     onClick={() => {
+                      closeModal();
                       modalSupportAction();
                     }}
                     type="button"
@@ -306,6 +331,47 @@ export function LoginPage(): JSX.Element {
                   navigate(ROUTES.dashboard, { replace: true });
                 }}
               />
+            </Modal>
+
+            <Modal
+              isOpen={isForgotPasswordModalOpen}
+              onClose={closeForgotPasswordModal}
+              title="Recuperar contrasena"
+              variant="info"
+            >
+              <ForgotPasswordFlow
+                onBackToLogin={forceCloseForgotPasswordModal}
+                onDirtyChange={setForgotPasswordDirty}
+              />
+            </Modal>
+
+            <Modal
+              isOpen={isForgotPasswordCloseConfirmOpen}
+              onClose={() => setIsForgotPasswordCloseConfirmOpen(false)}
+              title="Cerrar recuperacion"
+              variant="warning"
+            >
+              <p>Esta seguro de cerrar? Se perdera el progreso del proceso de recuperacion.</p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  className="h-14 rounded-[16px] bg-[linear-gradient(135deg,#4d0b12,#7f1d1d)] text-lg font-semibold shadow-[0_10px_24px_rgba(77,11,18,0.25)] hover:brightness-110"
+                  fullWidth
+                  onClick={() => setIsForgotPasswordCloseConfirmOpen(false)}
+                  type="button"
+                  variant="create"
+                >
+                  Continuar aqui
+                </Button>
+                <Button
+                  className="h-14 rounded-[16px] bg-[linear-gradient(135deg,#d62828,#9d0208)] text-lg font-semibold shadow-[0_10px_24px_rgba(214,40,40,0.22)] hover:brightness-110"
+                  fullWidth
+                  onClick={forceCloseForgotPasswordModal}
+                  type="button"
+                  variant="create"
+                >
+                  Cerrar de todos modos
+                </Button>
+              </div>
             </Modal>
 
             <Card className={AUTH_STYLES.formCard} bodyClassName="px-6 py-5 sm:px-7 sm:py-6">
@@ -364,7 +430,7 @@ export function LoginPage(): JSX.Element {
                   <button
                     className="inline-flex items-center gap-1.5 font-medium text-[#7f1d1d] hover:text-[#5f0f12]"
                     type="button"
-                    onClick={openSupportModal}
+                    onClick={openForgotPasswordModal}
                   >
                     <Mail size={15} strokeWidth={2} />
                     Contacta aqui

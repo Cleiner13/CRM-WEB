@@ -2,133 +2,195 @@
 
 export type NavigationItem = {
   id: string;
-  label: string;
+  label?: string;
   path?: string;
+  moduleId?: number;
+  alwaysVisible?: boolean;
   children?: NavigationItem[];
 };
 
 export const NAVIGATION_MENU: NavigationItem[] = [
-  { id: "dashboard", label: "Dashboard", path: ROUTES.dashboard },
-  { id: "profile", label: "Mi Perfil", path: ROUTES.profile },
-  { id: "inbox", label: "Bandeja de Entrada", path: ROUTES.inbox },
+  { id: "dashboard", path: ROUTES.dashboard, moduleId: 1, alwaysVisible: true },
+  { id: "profile", path: ROUTES.profile, moduleId: 2, alwaysVisible: true },
+  { id: "inbox", path: ROUTES.inbox, moduleId: 3, alwaysVisible: true },
   {
     id: "administracion",
-    label: "Administracion",
+    moduleId: 4,
     children: [
-      { id: "admin-personal", label: "Personal", path: ROUTES.adminPersonal },
-      { id: "admin-comisiones", label: "Comisiones", path: ROUTES.adminComisiones },
-      { id: "admin-pagos", label: "Pagos", path: ROUTES.adminPagos },
+      {
+        id: "admin-personal",
+        path: ROUTES.adminPersonal,
+        moduleId: 10,
+      },
+      {
+        id: "admin-comisiones",
+        path: ROUTES.adminComisiones,
+        moduleId: 11,
+      },
+      {
+        id: "admin-pagos",
+        path: ROUTES.adminPagos,
+        moduleId: 12,
+      },
       {
         id: "admin-reportes-personal",
-        label: "Reportes Personal",
         path: ROUTES.adminReportesPersonal,
+        moduleId: 13,
       },
     ],
   },
   {
     id: "ti",
-    label: "TI",
+    moduleId: 5,
     children: [
       {
         id: "soporte-tecnico",
-        label: "Soporte Tecnico",
+        moduleId: 14,
         children: [
           {
             id: "ti-ingresos-salidas",
-            label: "Ingresos / Salidas",
             path: ROUTES.tiIngresosSalidas,
+            moduleId: 15,
           },
-          { id: "ti-inventario", label: "Inventario", path: ROUTES.tiInventario },
+          {
+            id: "ti-inventario",
+            path: ROUTES.tiInventario,
+            moduleId: 16,
+          },
         ],
       },
       {
         id: "sistemas",
-        label: "Sistemas",
+        moduleId: 17,
         children: [
-          { id: "ti-sistemas-listas", label: "Listas", path: ROUTES.tiSistemasListas },
-          { id: "ti-sistemas-bases", label: "Bases", path: ROUTES.tiSistemasBases },
+          {
+            id: "ti-sistemas-listas",
+            path: ROUTES.tiSistemasListas,
+            moduleId: 18,
+          },
+          {
+            id: "ti-sistemas-bases",
+            path: ROUTES.tiSistemasBases,
+            moduleId: 19,
+          },
         ],
       },
     ],
   },
   {
     id: "gerencia",
-    label: "Gerencia",
+    moduleId: 6,
     children: [
-      { id: "ger-reporte-listas", label: "Reporte Listas", path: ROUTES.gerenciaReporteListas },
-      { id: "ger-reporte-bases", label: "Reporte Bases", path: ROUTES.gerenciaReporteBases },
-      { id: "ger-reporte-ventas", label: "Reporte Ventas", path: ROUTES.gerenciaReporteVentas },
+      {
+        id: "ger-reporte-listas",
+        path: ROUTES.gerenciaReporteListas,
+        moduleId: 20,
+      },
+      {
+        id: "ger-reporte-bases",
+        path: ROUTES.gerenciaReporteBases,
+        moduleId: 21,
+      },
+      {
+        id: "ger-reporte-ventas",
+        path: ROUTES.gerenciaReporteVentas,
+        moduleId: 22,
+      },
       {
         id: "ger-reporte-gestion-personal",
-        label: "Reporte Gestion Personal",
         path: ROUTES.gerenciaReporteGestionPersonal,
+        moduleId: 23,
       },
     ],
   },
   {
     id: "documentos-operativos",
-    label: "Documentos Operativos",
     path: ROUTES.documentosOperativos,
+    moduleId: 7,
   },
   {
     id: "gestion-operativa",
-    label: "Gestion Operativa",
+    moduleId: 8,
     children: [
       {
         id: "go-ventas",
-        label: "Ventas",
+        moduleId: 24,
         children: [
-          { id: "go-ventas-oh-tc", label: "OH TC", path: ROUTES.goVentasOhTc },
-          { id: "go-ventas-oh-max", label: "OH MAX", path: ROUTES.goVentasOhMax },
-          { id: "go-ventas-oh-pld", label: "OH PLD", path: ROUTES.goVentasOhPld },
+          {
+            id: "go-ventas-oh-tc",
+            path: ROUTES.goVentasOhTc,
+            moduleId: 26,
+          },
+          {
+            id: "go-ventas-oh-max",
+            path: ROUTES.goVentasOhMax,
+            moduleId: 27,
+          },
+          {
+            id: "go-ventas-oh-pld",
+            path: ROUTES.goVentasOhPld,
+            moduleId: 28,
+          },
           {
             id: "go-ventas-santander-tc",
-            label: "Santander TC",
             path: ROUTES.goVentasSantanderTc,
+            moduleId: 29,
           },
           {
             id: "go-ventas-santander-ld",
-            label: "Santander LD",
             path: ROUTES.goVentasSantanderLd,
+            moduleId: 30,
           },
           {
             id: "go-ventas-cencosud-tc",
-            label: "Cencosud TC",
             path: ROUTES.goVentasCencosudTc,
+            moduleId: 31,
           },
           {
             id: "go-ventas-cencosud-ld",
-            label: "Cencosud LD",
             path: ROUTES.goVentasCencosudLd,
+            moduleId: 32,
           },
         ],
       },
       {
         id: "go-back-office",
-        label: "Back Office",
+        moduleId: 25,
         children: [
-          { id: "go-bo-oh-tc", label: "OH TC", path: ROUTES.goBoOhTc },
-          { id: "go-bo-oh-max", label: "OH MAX", path: ROUTES.goBoOhMax },
-          { id: "go-bo-oh-pld", label: "OH PLD", path: ROUTES.goBoOhPld },
+          {
+            id: "go-bo-oh-tc",
+            path: ROUTES.goBoOhTc,
+            moduleId: 33,
+          },
+          {
+            id: "go-bo-oh-max",
+            path: ROUTES.goBoOhMax,
+            moduleId: 34,
+          },
+          {
+            id: "go-bo-oh-pld",
+            path: ROUTES.goBoOhPld,
+            moduleId: 35,
+          },
           {
             id: "go-bo-santander-tc",
-            label: "Santander TC",
             path: ROUTES.goBoSantanderTc,
+            moduleId: 36,
           },
           {
             id: "go-bo-santander-ld",
-            label: "Santander LD",
             path: ROUTES.goBoSantanderLd,
+            moduleId: 37,
           },
           {
             id: "go-bo-cencosud-tc",
-            label: "Cencosud TC",
             path: ROUTES.goBoCencosudTc,
+            moduleId: 38,
           },
           {
             id: "go-bo-cencosud-ld",
-            label: "Cencosud LD",
             path: ROUTES.goBoCencosudLd,
+            moduleId: 39,
           },
         ],
       },
@@ -136,14 +198,18 @@ export const NAVIGATION_MENU: NavigationItem[] = [
   },
   {
     id: "configuracion",
-    label: "Configuracion",
+    moduleId: 9,
     children: [
       {
         id: "config-mantenimiento-tablas",
-        label: "Mantenimiento Tablas",
         path: ROUTES.configuracionMantenimientoTablas,
+        moduleId: 40,
       },
-      { id: "config-usuarios", label: "Usuarios", path: ROUTES.configuracionUsuarios },
+      {
+        id: "config-usuarios",
+        path: ROUTES.configuracionUsuarios,
+        moduleId: 41,
+      },
     ],
   },
 ];

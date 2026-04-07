@@ -1,0 +1,87 @@
+export type MiPerfilResumen = {
+  usuarioId: number;
+  empleadoId: number;
+  usuario?: string;
+  ultimoLogin?: string | null;
+  tipoDocumentoNombre?: string | null;
+  nombreCompleto?: string | null;
+  fechaNacimiento?: string | null;
+  edad?: string | null;
+  sexoNombre?: string | null;
+  nivelEstudiosNombre?: string | null;
+  nacionalidad?: string | null;
+  estadoCivilNombre?: string | null;
+  hijos?: boolean | null;
+  cantidadHijos?: number | null;
+  celularPersonal?: string | null;
+  correoPersonal?: string | null;
+  departamento?: string | null;
+  provincia?: string | null;
+  distrito?: string | null;
+  direccion?: string | null;
+  direccionReferencia?: string | null;
+  correoCorporativo?: string | null;
+  fotoUrl?: string | null;
+  fotoBytes?: string | null;
+  fechaPostulacion?: string | null;
+  origenNombre?: string | null;
+  postulacionReferencia?: string | null;
+  postulacionAreaNombre?: string | null;
+  postulacionCargoNombre?: string | null;
+  productoNombre?: string | null;
+  campaniaNombre?: string | null;
+  jefeNombreCompleto?: string | null;
+  codigoEjecutivo?: string | null;
+  codigoDial?: string | null;
+  codigoPropio?: string | null;
+  generacionNombre?: string | null;
+  jornadaNombre?: string | null;
+  turnoNombre?: string | null;
+  tipoContratoNombre?: string | null;
+  contratacionAreaNombre?: string | null;
+  contratacionCargoNombre?: string | null;
+  tipoProductoNombre?: string | null;
+  fechaIngreso?: string | null;
+  bancoNombre?: string | null;
+  numeroCuenta?: string | null;
+  fechaInicioContrato?: string | null;
+  fechaFinContrato?: string | null;
+  empresaNombre?: string | null;
+  sueldo?: number | null;
+  fechaCambio?: string | null;
+  fechaCese?: string | null;
+  estadoNombre?: string | null;
+  subEstadoNombre?: string | null;
+  comentario?: string | null;
+};
+
+export type MiPerfilRol = {
+  usuarioRolId: number;
+  usuarioId: number;
+  rolId: number;
+  rolCodigo?: string | null;
+  rolNombre?: string | null;
+  rolDescripcion?: string | null;
+  rolActivo: boolean;
+  usuarioRolActivo: boolean;
+  fechaCreacion: string;
+  usuarioCreacionId?: number | null;
+  fechaModificacion?: string | null;
+  usuarioModificacionId?: number | null;
+};
+
+export type MiPerfilPermiso = {
+  moduloId: number;
+  moduloCodigo?: string | null;
+  moduloNombre?: string | null;
+  permisoId: number;
+  permisoCodigo?: string | null;
+  permisoNombre?: string | null;
+  permitido: boolean;
+};
+
+export type MiPerfilResponse = {
+  resumen?: MiPerfilResumen | null;
+  roles: MiPerfilRol[];
+  permisos: MiPerfilPermiso[];
+};
