@@ -103,11 +103,6 @@ async function startConnection(): Promise<void> {
 
 export const permissionHubService = {
   async start(): Promise<boolean> {
-    if (import.meta.env.DEV) {
-      isHubUnavailable = true;
-      return false;
-    }
-
     if (!authService.isAuthenticated() || !authService.getAccessToken()) {
       return false;
     }

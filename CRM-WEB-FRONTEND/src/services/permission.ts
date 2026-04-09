@@ -10,9 +10,9 @@ let permissionsCache: AppPermission[] | null = null;
 let permissionsPromise: Promise<AppPermission[]> | null = null;
 
 export const permissionService = {
-  async getAll(moduleId?: number, search?: string, onlyActive = true): Promise<AppPermission[]> {
+  async getAll(search?: string, onlyActive = true): Promise<AppPermission[]> {
     const normalizedSearch = search?.trim();
-    const canUseCache = !moduleId && !normalizedSearch && onlyActive;
+    const canUseCache = !normalizedSearch && onlyActive;
 
     if (canUseCache && permissionsCache) {
       return permissionsCache;
@@ -27,9 +27,6 @@ export const permissionService = {
 
     if (!canUseCache) {
       const params = new URLSearchParams();
-      if (moduleId) {
-        params.set("moduloId", String(moduleId));
-      }
       if (normalizedSearch) {
         params.set("buscar", normalizedSearch);
       }

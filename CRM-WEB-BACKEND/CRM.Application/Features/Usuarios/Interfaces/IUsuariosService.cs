@@ -19,6 +19,18 @@ public interface IUsuariosService
         bool soloActivos = true,
         CancellationToken cancellationToken = default);
 
+    Task<UsuarioPermisoMatrizResponse> ObtenerMatrizPermisosAsync(
+        long usuarioId,
+        CancellationToken cancellationToken = default);
+
+    Task<UsuarioPermisoMatrizResponse> GuardarMatrizPermisosAsync(
+        long usuarioId,
+        GuardarMatrizUsuarioPermisosRequest request,
+        long? usuarioIdAccion,
+        string? ipAddress,
+        string? userAgent,
+        CancellationToken cancellationToken = default);
+
     Task<List<UsuarioRolResponse>> ListarRolesPorUsuarioAsync(
         long usuarioId,
         CancellationToken cancellationToken = default);

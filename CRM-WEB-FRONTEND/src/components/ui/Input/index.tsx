@@ -3,6 +3,7 @@ import { INPUT_STYLES, cx } from "@/config/styles";
 
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, "size"> & {
   label: string;
+  hideLabel?: boolean;
   helperText?: string;
   errorText?: string;
   containerClassName?: string;
@@ -13,6 +14,7 @@ export function Input({
   containerClassName,
   errorText,
   helperText,
+  hideLabel = false,
   id,
   label,
   className,
@@ -23,7 +25,7 @@ export function Input({
 
   return (
     <div className={cx(INPUT_STYLES.fieldWrapper, containerClassName)}>
-      <label className={INPUT_STYLES.label} htmlFor={inputId}>
+      <label className={cx(INPUT_STYLES.label, hideLabel && "sr-only")} htmlFor={inputId}>
         {label}
       </label>
       <div className={INPUT_STYLES.inputWrap}>

@@ -28,3 +28,11 @@ export type LoginResponse = Usuario & {
 };
 
 export type CurrentUserResponse = Usuario;
+
+export type UsuarioResetEmpleadoResponse = {
+  usuarioId: number;
+  empleadoId: number;
+  usuario: string;
+  activo: boolean;
+  debeCambiarPassword: boolean;
+};

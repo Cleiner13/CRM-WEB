@@ -63,6 +63,41 @@ public class UsuariosController : ControllerBase
         return Ok(ApiResponse<List<UsuarioPermisoResponse>>.Ok(result, "Permisos del usuario obtenidos correctamente."));
     }
 
+    [HttpGet("{id:long}/permisos/matriz")]
+    public async Task<IActionResult> ObtenerMatrizPermisos(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _usuariosService.ObtenerMatrizPermisosAsync(id, cancellationToken);
+        return Ok(ApiResponse<UsuarioPermisoMatrizResponse>.Ok(result, "Matriz de permisos del usuario obtenida correctamente."));
+    }
+
+    [HttpPost("{id:long}/permisos/matriz")]
+    public async Task<IActionResult> GuardarMatrizPermisos(
+        long id,
+        [FromBody] GuardarMatrizUsuarioPermisosRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = Request.Headers.UserAgent.ToString();
+        var usuarioAccionId = _currentUserService.UsuarioId ?? id;
+
+        var result = await _usuariosService.GuardarMatrizPermisosAsync(
+            id,
+            request,
+            usuarioAccionId,
+            ipAddress,
+            userAgent,
+            cancellationToken);
+
+        await _permissionHubContext
+            .Clients
+            .Group($"user-{id}")
+            .SendAsync("PermissionChanged", new { UserId = id, Action = "MatrizPermisosActualizada" });
+
+        return Ok(ApiResponse<UsuarioPermisoMatrizResponse>.Ok(result, "Matriz de permisos del usuario guardada correctamente."));
+    }
+
     [HttpGet("{id:long}/roles")]
     public async Task<IActionResult> ListarRoles(
         long id,
@@ -195,6 +230,14 @@ public class UsuariosController : ControllerBase
         return Ok(ApiResponse<OperacionResponse>.Ok(result, result.Mensaje));
     }
 
+    [HttpPost("{id:long}/bloquear-acceso")]
+    public Task<IActionResult> BloquearAccesoUsuario(
+        long id,
+        CancellationToken cancellationToken)
+    {
+        return DesactivarUsuario(id, cancellationToken);
+    }
+
     [HttpPost("{id:long}/reactivar")]
     public async Task<IActionResult> ReactivarUsuario(
         long id,
@@ -216,6 +259,14 @@ public class UsuariosController : ControllerBase
             .SendAsync("UserStatusChanged", new { UserId = id, IsActive = true });
 
         return Ok(ApiResponse<OperacionResponse>.Ok(result, result.Mensaje));
+    }
+
+    [HttpPost("{id:long}/reactivar-acceso")]
+    public Task<IActionResult> ReactivarAccesoUsuario(
+        long id,
+        CancellationToken cancellationToken)
+    {
+        return ReactivarUsuario(id, cancellationToken);
     }
 
     [HttpPost("crear-reset-empleado")]

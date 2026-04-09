@@ -36,6 +36,30 @@ public class UsuariosService : IUsuariosService
         return _usuariosRepository.ListarPermisosPorUsuarioAsync(usuarioId, soloActivos, cancellationToken);
     }
 
+    public Task<UsuarioPermisoMatrizResponse> ObtenerMatrizPermisosAsync(
+        long usuarioId,
+        CancellationToken cancellationToken = default)
+    {
+        return _usuariosRepository.ObtenerMatrizPermisosAsync(usuarioId, cancellationToken);
+    }
+
+    public Task<UsuarioPermisoMatrizResponse> GuardarMatrizPermisosAsync(
+        long usuarioId,
+        GuardarMatrizUsuarioPermisosRequest request,
+        long? usuarioIdAccion,
+        string? ipAddress,
+        string? userAgent,
+        CancellationToken cancellationToken = default)
+    {
+        return _usuariosRepository.GuardarMatrizPermisosAsync(
+            usuarioId,
+            request,
+            usuarioIdAccion,
+            ipAddress,
+            userAgent,
+            cancellationToken);
+    }
+
     public Task<List<UsuarioRolResponse>> ListarRolesPorUsuarioAsync(
         long usuarioId,
         CancellationToken cancellationToken = default)

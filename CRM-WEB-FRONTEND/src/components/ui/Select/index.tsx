@@ -8,6 +8,7 @@ export type SelectOption = {
 
 export type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, "size"> & {
   label: string;
+  hideLabel?: boolean;
   options: SelectOption[];
   helperText?: string;
   errorText?: string;
@@ -19,6 +20,7 @@ export function Select({
   containerClassName,
   errorText,
   helperText,
+  hideLabel = false,
   id,
   label,
   options,
@@ -28,7 +30,7 @@ export function Select({
 
   return (
     <div className={cx(INPUT_STYLES.fieldWrapper, containerClassName)}>
-      <label className={INPUT_STYLES.label} htmlFor={selectId}>
+      <label className={cx(INPUT_STYLES.label, hideLabel && "sr-only")} htmlFor={selectId}>
         {label}
       </label>
       <div className="relative">

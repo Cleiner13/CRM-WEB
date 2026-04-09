@@ -2,3 +2,8 @@ export * from "./permisos";
 export * from "./usuario";
 export * from "./profile";
 export * from "./module";
+export * from "./security";
+export * from "./tablasMaestras";
+export * from "./itemsMaestros";
+export * from "./relacionesItemsMaestros";
+export * from "./areasRolesDefault";

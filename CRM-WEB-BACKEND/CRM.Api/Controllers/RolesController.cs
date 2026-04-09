@@ -96,6 +96,40 @@ public class RolesController : ControllerBase
             "Permisos del rol obtenidos correctamente."));
     }
 
+    [HttpGet("{id:long}/permisos/matriz")]
+    public async Task<IActionResult> ObtenerMatrizPermisos(
+        long id,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _rolesService.ObtenerMatrizPermisosAsync(id, cancellationToken);
+
+        return Ok(ApiResponse<RolPermisoMatrizResponse>.Ok(
+            result,
+            "Matriz de permisos del rol obtenida correctamente."));
+    }
+
+    [HttpPost("{id:long}/permisos/matriz")]
+    public async Task<IActionResult> GuardarMatrizPermisos(
+        long id,
+        [FromBody] GuardarMatrizRolPermisosRequest request,
+        CancellationToken cancellationToken)
+    {
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = Request.Headers.UserAgent.ToString();
+
+        var result = await _rolesService.GuardarMatrizPermisosAsync(
+            id,
+            request,
+            _currentUserService.UsuarioId,
+            ipAddress,
+            userAgent,
+            cancellationToken);
+
+        return Ok(ApiResponse<RolPermisoMatrizResponse>.Ok(
+            result,
+            "Matriz de permisos del rol guardada correctamente."));
+    }
+
     [HttpPost("{id:long}/permisos")]
     public async Task<IActionResult> AsignarPermiso(
         long id,

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using CRM.Application.Common.Interfaces;
+using CRM.Application.Features.Permisos.Responses;
 using CRM.Application.Features.Roles.Interfaces;
 using CRM.Application.Features.Roles.Requests;
 using CRM.Application.Features.Roles.Responses;
@@ -108,6 +109,119 @@ public class RolesRepository : IRolesRepository
 
         var result = await connection.QueryAsync<RolPermisoResponse>(command);
         return result.ToList();
+    }
+
+    public async Task<RolPermisoMatrizResponse> ObtenerMatrizPermisosAsync(
+        long rolId,
+        CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        var permissionsCommand = new CommandDefinition(
+            commandText: "seg.usp_Permisos_Listar",
+            parameters: new
+            {
+                Buscar = (string?)null,
+                SoloActivos = true
+            },
+            commandType: CommandType.StoredProcedure,
+            cancellationToken: cancellationToken);
+
+        var rolePermissionsCommand = new CommandDefinition(
+            commandText: "seg.usp_RolesPermisos_Listar",
+            parameters: new
+            {
+                RolId = rolId,
+                SoloActivos = true
+            },
+            commandType: CommandType.StoredProcedure,
+            cancellationToken: cancellationToken);
+
+        var permissions = (await connection.QueryAsync<PermisoResponse>(permissionsCommand)).ToList();
+        var rolePermissions = (await connection.QueryAsync<RolPermisoResponse>(rolePermissionsCommand)).ToList();
+        var assignedPermissionIds = rolePermissions
+            .Where(item => item.Activo)
+            .Select(item => item.PermisoId)
+            .ToHashSet();
+
+        return new RolPermisoMatrizResponse
+        {
+            RolId = rolId,
+            Permisos = permissions
+                .OrderBy(item => item.Codigo)
+                .ThenBy(item => item.Nombre)
+                .Select(item => new RolPermisoMatrizItemResponse
+                {
+                    ModuloId = 0,
+                    ModuloCodigo = string.Empty,
+                    ModuloNombre = string.Empty,
+                    PermisoId = item.PermisoId,
+                    PermisoCodigo = item.Codigo,
+                    PermisoNombre = item.Nombre,
+                    Asignado = assignedPermissionIds.Contains(item.PermisoId)
+                })
+                .ToList()
+        };
+    }
+
+    public async Task<RolPermisoMatrizResponse> GuardarMatrizPermisosAsync(
+        long rolId,
+        GuardarMatrizRolPermisosRequest request,
+        long? usuarioIdAccion,
+        string? ipAddress,
+        string? userAgent,
+        CancellationToken cancellationToken = default)
+    {
+        var matrizActual = await ObtenerMatrizPermisosAsync(rolId, cancellationToken);
+        var currentAssignedIds = matrizActual.Permisos
+            .Where(item => item.Asignado)
+            .Select(item => item.PermisoId)
+            .ToHashSet();
+
+        var desiredAssigned = request.Permisos
+            .Where(item => item.Asignado)
+            .Select(item => item.PermisoId)
+            .ToHashSet();
+
+        using var connection = _connectionFactory.CreateConnection();
+
+        foreach (var permisoId in desiredAssigned.Except(currentAssignedIds))
+        {
+            var command = new CommandDefinition(
+                commandText: "seg.usp_RolesPermisos_Asignar",
+                parameters: new
+                {
+                    RolId = rolId,
+                    PermisoId = permisoId,
+                    UsuarioIdAccion = usuarioIdAccion,
+                    IpAddress = ipAddress,
+                    UserAgent = userAgent
+                },
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken);
+
+            await connection.ExecuteAsync(command);
+        }
+
+        foreach (var permisoId in currentAssignedIds.Except(desiredAssigned))
+        {
+            var command = new CommandDefinition(
+                commandText: "seg.usp_RolesPermisos_Quitar",
+                parameters: new
+                {
+                    RolId = rolId,
+                    PermisoId = permisoId,
+                    UsuarioIdAccion = usuarioIdAccion,
+                    IpAddress = ipAddress,
+                    UserAgent = userAgent
+                },
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken);
+
+            await connection.ExecuteAsync(command);
+        }
+
+        return await ObtenerMatrizPermisosAsync(rolId, cancellationToken);
     }
 
     public async Task<RolPermisoAsignadoResponse> AsignarPermisoAsync(

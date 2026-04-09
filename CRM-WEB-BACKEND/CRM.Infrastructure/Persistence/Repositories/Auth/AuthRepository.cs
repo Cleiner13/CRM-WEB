@@ -83,7 +83,6 @@ public class AuthRepository : IAuthRepository
                     .Select(x => new Permiso
                     {
                         PermisoId = x.PermisoId,
-                        ModuloId = x.ModuloId,
                         Codigo = x.PermisoCodigo ?? string.Empty,
                         Nombre = x.PermisoNombre ?? string.Empty
                     })
@@ -321,7 +320,6 @@ public class AuthRepository : IAuthRepository
                 .Select(x => new Permiso
                 {
                     PermisoId = x.PermisoId,
-                    ModuloId = x.ModuloId,
                     Codigo = x.PermisoCodigo ?? string.Empty,
                     Nombre = x.PermisoNombre ?? string.Empty
                 })

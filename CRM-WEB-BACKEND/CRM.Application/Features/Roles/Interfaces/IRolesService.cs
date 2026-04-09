@@ -29,6 +29,18 @@ public interface IRolesService
         bool soloActivos,
         CancellationToken cancellationToken = default);
 
+    Task<RolPermisoMatrizResponse> ObtenerMatrizPermisosAsync(
+        long rolId,
+        CancellationToken cancellationToken = default);
+
+    Task<RolPermisoMatrizResponse> GuardarMatrizPermisosAsync(
+        long rolId,
+        GuardarMatrizRolPermisosRequest request,
+        long? usuarioIdAccion,
+        string? ipAddress,
+        string? userAgent,
+        CancellationToken cancellationToken = default);
+
     Task<RolPermisoAsignadoResponse> AsignarPermisoAsync(
         long rolId,
         AsignarPermisoRolRequest request,

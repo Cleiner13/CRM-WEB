@@ -1,46 +1,85 @@
-import { useEffect, useRef, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { LAYOUT_STYLES, cx } from "@/config/styles";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
 import { Button, Modal } from "@/components/ui";
 import { ROUTES } from "@/config/routes";
+import { NAVIGATION_MENU, type NavigationItem } from "@/config/navigation";
 import { authService, profileService } from "@/services";
 import { permissionHubService } from "@/services/permissionHub";
-import type { Usuario } from "@/types";
+import type { MiPerfilPermiso, Usuario } from "@/types";
+import { canViewModule } from "@/utils";
+
+type RealtimeNotice = {
+  title: string;
+  message: string;
+  redirectTo?: string | null;
+};
+
+function findNavigationBranch(items: NavigationItem[], pathname: string): NavigationItem[] {
+  for (const item of items) {
+    if (item.path && pathname.startsWith(item.path)) {
+      return [item];
+    }
+
+    if (item.children?.length) {
+      const nested = findNavigationBranch(item.children, pathname);
+      if (nested.length > 0) {
+        return [item, ...nested];
+      }
+    }
+  }
+
+  return [];
+}
+
+function getAllowedActions(permissions: MiPerfilPermiso[], moduleId: number): Set<string> {
+  return new Set(
+    permissions
+      .filter((permission) => permission.permitido && permission.moduloId === moduleId)
+      .map((permission) => (permission.permisoCodigo || permission.permisoNombre || "").trim().toUpperCase())
+      .filter(Boolean),
+  );
+}
 
 export function AppShell(): JSX.Element {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("Su usuario ha sido desactivado en el sistema.");
-  const [mustReturnToLogin, setMustReturnToLogin] = useState(false);
+  const [notice, setNotice] = useState<RealtimeNotice | null>(null);
   const [currentUser, setCurrentUser] = useState<Usuario | null>(() => authService.getCurrentUser());
+  const [permissionRefreshToken, setPermissionRefreshToken] = useState(0);
   const enrichingUserIdRef = useRef<number | null>(null);
+  const profilePermissionsRef = useRef<MiPerfilPermiso[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentBranch = useMemo(() => findNavigationBranch(NAVIGATION_MENU, location.pathname), [location.pathname]);
 
   useEffect(() => {
     let unsubscribePermissionChanged: (() => void) | undefined;
     let unsubscribeUserStatusChanged: (() => void) | undefined;
     let statusPollInterval: number | undefined;
-    const syncDisplayUser = async (user: Usuario | null): Promise<void> => {
+    const syncDisplayUser = async (user: Usuario | null, forceProfileRefresh = false): Promise<MiPerfilPermiso[]> => {
       if (!user?.usuarioId) {
-        return;
+        profilePermissionsRef.current = [];
+        return [];
       }
 
-      if (user.nombreCompleto && user.cargoNombre && user.areaNombre) {
-        return;
+      if (!forceProfileRefresh && user.nombreCompleto && user.cargoNombre && user.areaNombre && profilePermissionsRef.current.length > 0) {
+        return profilePermissionsRef.current;
       }
 
       if (enrichingUserIdRef.current === user.usuarioId) {
-        return;
+        return profilePermissionsRef.current;
       }
 
       try {
         enrichingUserIdRef.current = user.usuarioId;
         const profile = await profileService.getMyProfile();
+        profilePermissionsRef.current = profile.permisos.filter((permission) => permission.permitido);
         const resumen = profile.resumen;
         if (!resumen) {
-          return;
+          return profilePermissionsRef.current;
         }
 
         const nextUser: Usuario = {
@@ -65,6 +104,8 @@ export function AppShell(): JSX.Element {
           enrichingUserIdRef.current = null;
         }
       }
+
+      return profilePermissionsRef.current;
     };
 
     const unsubscribeCurrentUser = authService.subscribeCurrentUser((user) => {
@@ -74,17 +115,76 @@ export function AppShell(): JSX.Element {
 
     const handleRemoteStatusChange = (isActive: boolean): void => {
       if (isActive) {
-        setStatusMessage("Su usuario ha sido reactivado. Recargue la informacion para continuar.");
-        setMustReturnToLogin(false);
-        setIsStatusModalOpen(true);
+        setNotice({
+          title: "Estado de usuario actualizado",
+          message: "Su usuario ha sido reactivado. Recargue la informacion para continuar.",
+        });
         void authService.fetchCurrentUser().catch(() => {});
         return;
       }
 
       authService.logout();
-      setStatusMessage("Su usuario ha sido desactivado. Debe volver a iniciar sesion.");
-      setMustReturnToLogin(true);
-      setIsStatusModalOpen(true);
+      setNotice({
+        title: "Estado de usuario actualizado",
+        message: "Su usuario ha sido desactivado. Debe volver a iniciar sesion.",
+        redirectTo: ROUTES.login,
+      });
+    };
+
+    const handleRemotePermissionChange = async (): Promise<void> => {
+      const knownUser = authService.getCurrentUser();
+      if (!knownUser?.usuarioId) {
+        return;
+      }
+
+      const previousPermissions = profilePermissionsRef.current;
+
+      try {
+        await authService.fetchCurrentUser();
+        const nextPermissions = await syncDisplayUser(authService.getCurrentUser(), true);
+        setPermissionRefreshToken((current) => current + 1);
+
+        const branchModuleIds = currentBranch.map((item) => item.moduleId).filter((value): value is number => typeof value === "number");
+        const currentLeafModuleId = [...branchModuleIds].reverse()[0];
+
+        const lostViewAccess = branchModuleIds.some((moduleId) => canViewModule(previousPermissions, moduleId) && !canViewModule(nextPermissions, moduleId));
+        if (lostViewAccess) {
+          setNotice({
+            title: "Permisos actualizados",
+            message: "Tus permisos para esta seccion han sido actualizados. Ya no tienes acceso a este contenido.",
+            redirectTo: ROUTES.dashboard,
+          });
+          return;
+        }
+
+        if (!currentLeafModuleId) {
+          return;
+        }
+
+        const previousActions = getAllowedActions(previousPermissions, currentLeafModuleId);
+        const nextActions = getAllowedActions(nextPermissions, currentLeafModuleId);
+        const removedActions = [...previousActions].filter((action) => action !== "VER" && !nextActions.has(action));
+
+        if (removedActions.length > 0) {
+          setNotice({
+            title: "Permisos actualizados",
+            message: `Tus permisos para esta seccion han sido actualizados. Ya no puedes realizar: ${removedActions.join(", ")}.`,
+          });
+          return;
+        }
+
+        const previousCanViewCurrent = canViewModule(previousPermissions, currentLeafModuleId);
+        const nextCanViewCurrent = canViewModule(nextPermissions, currentLeafModuleId);
+        if (previousCanViewCurrent && !nextCanViewCurrent) {
+          setNotice({
+            title: "Permisos actualizados",
+            message: "Tus permisos para esta seccion han sido actualizados. Ya no tienes acceso a este contenido.",
+            redirectTo: ROUTES.dashboard,
+          });
+        }
+      } catch {
+        // keep current state until a future successful refresh
+      }
     };
 
     const initializeRealtime = async (): Promise<void> => {
@@ -105,9 +205,7 @@ export function AppShell(): JSX.Element {
           return;
         }
 
-        void authService.fetchCurrentUser().catch(() => {
-          // keep current state until a future successful refresh
-        });
+        void handleRemotePermissionChange();
       });
 
       unsubscribeUserStatusChanged = permissionHubService.onUserStatusChanged((payload) => {
@@ -158,14 +256,14 @@ export function AppShell(): JSX.Element {
       }
       void permissionHubService.stop();
     };
-  }, [navigate]);
+  }, [currentBranch, navigate]);
 
-  const handleStatusModalClose = (): void => {
-    setIsStatusModalOpen(false);
+  const handleNoticeClose = (): void => {
+    const redirectTo = notice?.redirectTo;
+    setNotice(null);
 
-    if (mustReturnToLogin) {
-      setMustReturnToLogin(false);
-      navigate(ROUTES.login, { replace: true });
+    if (redirectTo) {
+      navigate(redirectTo, { replace: true });
     }
   };
 
@@ -188,7 +286,7 @@ export function AppShell(): JSX.Element {
             isSidebarOpen ? LAYOUT_STYLES.sidebarSlotOpen : LAYOUT_STYLES.sidebarSlotClosed,
           )}
         >
-          <Sidebar compact={!isSidebarOpen} currentUser={currentUser} />
+          <Sidebar compact={!isSidebarOpen} currentUser={currentUser} refreshKey={permissionRefreshToken} />
         </div>
 
         <div className={LAYOUT_STYLES.contentArea}>
@@ -201,16 +299,16 @@ export function AppShell(): JSX.Element {
 
       <Modal
         footer={
-          <Button onClick={handleStatusModalClose} variant="create">
-            {mustReturnToLogin ? "Volver al login" : "Cerrar"}
+          <Button onClick={handleNoticeClose} variant="create">
+            {notice?.redirectTo ? "Continuar" : "Cerrar"}
           </Button>
         }
-        isOpen={isStatusModalOpen}
-        onClose={handleStatusModalClose}
-        title="Estado de usuario actualizado"
+        isOpen={Boolean(notice)}
+        onClose={handleNoticeClose}
+        title={notice?.title || "Estado de usuario actualizado"}
         variant="warning"
       >
-        <p>{statusMessage}</p>
+        <p>{notice?.message}</p>
       </Modal>
     </div>
   );

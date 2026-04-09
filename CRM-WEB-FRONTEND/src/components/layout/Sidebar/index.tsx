@@ -81,6 +81,11 @@ function resolveNavigationItem(
 ): ResolvedNavigationItem | null {
   const module = item.moduleId ? modulesById.get(item.moduleId) : undefined;
   const canShowSelf = item.alwaysVisible || !item.moduleId ? true : Boolean(module && canViewModule(permissions, module.moduloId));
+
+  if (item.moduleId && !canShowSelf) {
+    return null;
+  }
+
   const resolvedChildren = (item.children ?? [])
     .map((child) => resolveNavigationItem(child, modulesById, permissions))
     .filter((child): child is ResolvedNavigationItem => child !== null);
@@ -197,6 +202,7 @@ function SidebarNode({ depth, item, expandedMap, onToggle }: SidebarNodeProps): 
 export type SidebarProps = {
   compact?: boolean;
   currentUser?: Usuario | null;
+  refreshKey?: number;
 };
 
 function CompactSidebar({ items }: { items: ResolvedNavigationItem[] }): JSX.Element {
@@ -248,7 +254,7 @@ function CompactSidebar({ items }: { items: ResolvedNavigationItem[] }): JSX.Ele
   );
 }
 
-export function Sidebar({ compact = false, currentUser }: SidebarProps): JSX.Element {
+export function Sidebar({ compact = false, currentUser, refreshKey = 0 }: SidebarProps): JSX.Element {
   const { pathname } = useLocation();
   const [availableModules, setAvailableModules] = useState<AppModule[]>([]);
   const [profilePermissions, setProfilePermissions] = useState<MiPerfilPermiso[]>([]);
@@ -277,7 +283,7 @@ export function Sidebar({ compact = false, currentUser }: SidebarProps): JSX.Ele
     return () => {
       active = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   const resolvedNavigation = useMemo<ResolvedNavigationItem[]>(() => {
     if (availableModules.length === 0) {

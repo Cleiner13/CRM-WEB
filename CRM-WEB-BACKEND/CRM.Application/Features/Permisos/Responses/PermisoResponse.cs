@@ -3,10 +3,6 @@
 public class PermisoResponse
 {
     public long PermisoId { get; set; }
-    public long ModuloId { get; set; }
-
-    public string? ModuloCodigo { get; set; }
-    public string? ModuloNombre { get; set; }
 
     public string Codigo { get; set; } = string.Empty;
     public string Nombre { get; set; } = string.Empty;

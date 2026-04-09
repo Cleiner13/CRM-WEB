@@ -363,20 +363,25 @@ export const DASHBOARD_STYLES = {
 } as const;
 
 export const PROFILE_PAGE_STYLES = {
-  page: "space-y-5",
-  grid: "grid gap-4 xl:grid-cols-[1.1fr_1.4fr]",
-  stack: "space-y-4",
-  summaryCard: "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm",
-  avatarWrap: "flex items-center gap-4",
-  avatar: "grid h-16 w-16 place-items-center rounded-2xl bg-[#2e0810] text-lg font-semibold text-white",
-  summaryName: "text-lg font-semibold text-slate-900",
-  summaryMeta: "text-sm text-slate-500",
-  tagRow: "mt-3 flex flex-wrap gap-2",
-  tag: "rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600",
+  page: "space-y-6",
+  topGrid: "grid gap-4",
+  detailGrid: "grid gap-4 xl:grid-cols-2",
+  summaryPanel:
+    "grid gap-5 rounded-2xl border border-[#d8e6f8] bg-[linear-gradient(135deg,#f8fbff_0%,#eef5fd_55%,#e9f1fb_100%)] p-5 shadow-[0_12px_30px_rgba(37,99,235,0.08)] lg:grid-cols-[1fr_auto]",
+  avatarWrap: "flex items-start gap-4",
+  avatar: "grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[linear-gradient(180deg,#2e0810,#4b1220)] text-lg font-semibold text-white shadow-sm",
+  summaryName: "text-lg font-semibold leading-tight text-slate-900",
+  summaryMeta: "text-sm leading-5 text-slate-500",
+  summaryIdentity: "space-y-1",
+  tagRow: "flex flex-wrap gap-2",
+  tag: "rounded-full border border-[#d7e3f3] bg-white px-2.5 py-1 text-xs font-medium text-slate-600",
   formGrid: "grid gap-4 md:grid-cols-2",
   full: "md:col-span-2",
-  actions: "flex flex-wrap justify-end gap-2",
-  activityStack: "space-y-4",
+  summaryActionWrap: "flex items-end justify-end lg:min-w-[180px]",
+  summaryUploadBtn:
+    "inline-flex h-11 items-center justify-center rounded-xl border border-[#cbdcf4] bg-white px-5 text-sm font-semibold text-[#2563eb] transition hover:bg-[#eff6ff] hover:text-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/20",
+  hiddenInput: "hidden",
+  detailCard: "border-[#dbe6f3] bg-[linear-gradient(180deg,#ffffff,#fbfdff)]",
 } as const;
 
 export const PERSONAL_PAGE_STYLES = {

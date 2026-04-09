@@ -1,4 +1,11 @@
-import type { AppRole, RoleOperationResponse, SaveRoleRequest, SaveRoleResponse } from "@/types";
+import type {
+  AppRole,
+  RoleOperationResponse,
+  RolePermissionMatrix,
+  SaveRolePermissionMatrixRequest,
+  SaveRoleRequest,
+  SaveRoleResponse,
+} from "@/types";
 import { httpClientDelete, httpClientGet, httpClientPost } from "./httpClient";
 
 let rolesCache: AppRole[] | null = null;
@@ -42,6 +49,14 @@ export const roleService = {
     const response = await httpClientDelete<RoleOperationResponse>(`/roles/${roleId}`);
     this.clearCache();
     return response;
+  },
+
+  async getPermissionMatrix(roleId: number): Promise<RolePermissionMatrix> {
+    return httpClientGet<RolePermissionMatrix>(`/roles/${roleId}/permisos/matriz`);
+  },
+
+  async savePermissionMatrix(roleId: number, payload: SaveRolePermissionMatrixRequest): Promise<RolePermissionMatrix> {
+    return httpClientPost<RolePermissionMatrix>(`/roles/${roleId}/permisos/matriz`, payload);
   },
 
   clearCache(): void {

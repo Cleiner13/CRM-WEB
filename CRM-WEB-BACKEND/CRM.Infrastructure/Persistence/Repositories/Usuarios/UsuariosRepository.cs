@@ -5,6 +5,7 @@ using CRM.Application.Features.Usuarios.Interfaces;
 using CRM.Application.Features.Usuarios.Requests;
 using CRM.Application.Features.Usuarios.Responses;
 using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace CRM.Infrastructure.Persistence.Repositories.Usuarios;
 
@@ -87,7 +88,6 @@ public class UsuariosRepository : IUsuariosRepository
         _ = (await multi.ReadAsync<UsuarioRolResponse>()).ToList();
         _ = (await multi.ReadAsync<UsuarioPermisoResponse>()).ToList();
         _ = (await multi.ReadAsync<PermisoEfectivoDbModel>()).ToList();
-        _ = (await multi.ReadAsync<CampaniaDbModel>()).ToList();
 
         if (usuario is null)
         {
@@ -147,6 +147,146 @@ public class UsuariosRepository : IUsuariosRepository
         return items.ToList();
     }
 
+    public async Task<UsuarioPermisoMatrizResponse> ObtenerMatrizPermisosAsync(
+        long usuarioId,
+        CancellationToken cancellationToken = default)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        var parameters = new DynamicParameters();
+        parameters.Add("@UsuarioId", usuarioId, DbType.Int64);
+        parameters.Add("@SoloActivos", true, DbType.Boolean);
+
+        var command = new CommandDefinition(
+            commandText: "seg.usp_UsuariosPermisos_ListarMatriz",
+            parameters: parameters,
+            commandType: CommandType.StoredProcedure,
+            cancellationToken: cancellationToken);
+
+        var matrixRows = (await connection.QueryAsync<UsuarioPermisoMatrizDbModel>(command)).ToList();
+
+        return new UsuarioPermisoMatrizResponse
+        {
+            UsuarioId = usuarioId,
+            Permisos = matrixRows
+                .OrderBy(item => item.ModuloNombre)
+                .ThenBy(item => item.PermisoCodigo)
+                .Select(item =>
+                {
+                    return new UsuarioPermisoMatrizItemResponse
+                    {
+                        ModuloId = item.ModuloId,
+                        ModuloCodigo = item.ModuloCodigo,
+                        ModuloNombre = item.ModuloNombre,
+                        PermisoId = item.PermisoId,
+                        PermisoCodigo = item.PermisoCodigo,
+                        PermisoNombre = item.PermisoNombre,
+                        HeredadoPorRol = item.HeredadoPorRol,
+                        EstadoOverride = item.TieneOverrideUsuario
+                            ? item.EsDenegadoUsuario ? "DENY" : "ALLOW"
+                            : "HEREDAR",
+                        EsDenegado = item.EsDenegadoUsuario,
+                        PermitidoEfectivo = item.PermitidoEfectivo,
+                        Motivo = item.Motivo
+                    };
+                })
+                .ToList()
+        };
+    }
+
+    public async Task<UsuarioPermisoMatrizResponse> GuardarMatrizPermisosAsync(
+        long usuarioId,
+        GuardarMatrizUsuarioPermisosRequest request,
+        long? usuarioIdAccion,
+        string? ipAddress,
+        string? userAgent,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            using var connection = _connectionFactory.CreateConnection();
+            if (connection is not SqlConnection sqlConnection)
+            {
+                throw new AppException(500, "La conexion SQL no es compatible con guardado estructurado de matriz.");
+            }
+
+            var itemsTable = new DataTable();
+            itemsTable.Columns.Add("ModuloId", typeof(long));
+            itemsTable.Columns.Add("PermisoId", typeof(long));
+            itemsTable.Columns.Add("Estado", typeof(string));
+            itemsTable.Columns.Add("Motivo", typeof(string));
+
+            foreach (var item in request.Permisos
+                         .GroupBy(entry => new { entry.ModuloId, entry.PermisoId })
+                         .Select(group => group.Last()))
+            {
+                var estado = string.IsNullOrWhiteSpace(item.Estado)
+                    ? "HEREDAR"
+                    : item.Estado.Trim().ToUpperInvariant();
+
+                itemsTable.Rows.Add(
+                    item.ModuloId,
+                    item.PermisoId,
+                    estado,
+                    string.IsNullOrWhiteSpace(item.Motivo) ? DBNull.Value : item.Motivo!.Trim());
+            }
+
+            if (sqlConnection.State != ConnectionState.Open)
+            {
+                await sqlConnection.OpenAsync(cancellationToken);
+            }
+
+            using var command = new SqlCommand("seg.usp_UsuariosPermisos_GuardarMatriz", sqlConnection)
+            {
+                CommandType = CommandType.StoredProcedure,
+                CommandTimeout = 120
+            };
+
+            command.Parameters.Add(new SqlParameter("@UsuarioId", SqlDbType.BigInt) { Value = usuarioId });
+            command.Parameters.Add(new SqlParameter("@UsuarioIdAccion", SqlDbType.BigInt) { Value = (object?)usuarioIdAccion ?? DBNull.Value });
+            command.Parameters.Add(new SqlParameter("@IpAddress", SqlDbType.NVarChar, 80)
+            {
+                Value = string.IsNullOrWhiteSpace(ipAddress) ? DBNull.Value : ipAddress.Trim()
+            });
+
+            var normalizedUserAgent = string.IsNullOrWhiteSpace(userAgent)
+                ? null
+                : userAgent.Trim()[..Math.Min(userAgent.Trim().Length, 200)];
+
+            command.Parameters.Add(new SqlParameter("@UserAgent", SqlDbType.NVarChar, 200)
+            {
+                Value = (object?)normalizedUserAgent ?? DBNull.Value
+            });
+            command.Parameters.Add(new SqlParameter("@Items", SqlDbType.Structured)
+            {
+                TypeName = "seg.TVP_UsuariosPermisosMatriz",
+                Value = itemsTable
+            });
+
+            using var reader = await command.ExecuteReaderAsync(cancellationToken);
+            do
+            {
+                while (await reader.ReadAsync(cancellationToken))
+                {
+                }
+            } while (await reader.NextResultAsync(cancellationToken));
+
+            return await ObtenerMatrizPermisosAsync(usuarioId, cancellationToken);
+        }
+        catch (SqlException ex)
+        {
+            throw new AppException(400, ex.Message, ex.Errors.Cast<SqlError>().Select(error => error.Message).ToList());
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new AppException(500, ex.Message);
+        }
+        catch (Exception ex) when (ex is not AppException)
+        {
+            throw new AppException(500, "No se pudo guardar la matriz de permisos del usuario.", new List<string> { ex.Message });
+        }
+    }
+
     public async Task<List<UsuarioRolResponse>> ListarRolesPorUsuarioAsync(
         long usuarioId,
         CancellationToken cancellationToken = default)
@@ -179,7 +319,6 @@ public class UsuariosRepository : IUsuariosRepository
 
         _ = (await multi.ReadAsync<UsuarioPermisoResponse>()).ToList();
         _ = (await multi.ReadAsync<PermisoEfectivoDbModel>()).ToList();
-        _ = (await multi.ReadAsync<CampaniaDbModel>()).ToList();
 
         return roles;
     }
@@ -444,8 +583,23 @@ public class UsuariosRepository : IUsuariosRepository
         public long PermisoId { get; set; }
     }
 
-    private sealed class CampaniaDbModel
+    private sealed class UsuarioPermisoMatrizDbModel
     {
-        public long EmpleadoCampaniaId { get; set; }
+        public long UsuarioId { get; set; }
+        public long ModuloId { get; set; }
+        public string? ModuloCodigo { get; set; }
+        public string? ModuloNombre { get; set; }
+        public long PermisoId { get; set; }
+        public string? PermisoCodigo { get; set; }
+        public string? PermisoNombre { get; set; }
+        public bool HeredadoPorRol { get; set; }
+        public bool TieneOverrideUsuario { get; set; }
+        public bool EsDenegadoUsuario { get; set; }
+        public bool PermitidoUsuario { get; set; }
+        public bool PermitidoEfectivo { get; set; }
+        public string? Fuente { get; set; }
+        public long? UsuarioPermisoId { get; set; }
+        public string? Motivo { get; set; }
     }
+
 }

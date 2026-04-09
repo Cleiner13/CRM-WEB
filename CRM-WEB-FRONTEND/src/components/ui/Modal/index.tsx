@@ -13,6 +13,9 @@ export type ModalProps = {
   footer?: ReactNode;
   onClose: () => void;
   variant?: ModalVariant;
+  panelClassName?: string;
+  bodyClassName?: string;
+  footerClassName?: string;
 };
 
 function getFocusableElements(container: HTMLElement): HTMLElement[] {
@@ -59,6 +62,9 @@ export function Modal({
   onClose,
   title,
   variant = "error",
+  panelClassName,
+  bodyClassName,
+  footerClassName,
 }: ModalProps): JSX.Element | null {
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = useId();
@@ -134,7 +140,7 @@ export function Modal({
       role="dialog"
     >
       <div
-        className={MODAL_STYLES.panel}
+        className={cx(MODAL_STYLES.panel, panelClassName)}
         onClick={(event) => event.stopPropagation()}
         ref={panelRef}
         tabIndex={-1}
@@ -155,8 +161,8 @@ export function Modal({
         </div>
 
         <div aria-hidden="true" className={MODAL_STYLES.divider} />
-        <div className={MODAL_STYLES.body}>{children}</div>
-        {footer ? <div className={MODAL_STYLES.footer}>{footer}</div> : null}
+        <div className={cx(MODAL_STYLES.body, bodyClassName)}>{children}</div>
+        {footer ? <div className={cx(MODAL_STYLES.footer, footerClassName)}>{footer}</div> : null}
       </div>
     </div>,
     document.body,

@@ -59,6 +59,30 @@ public class RolesService : IRolesService
         return _rolesRepository.ListarPermisosAsync(rolId, soloActivos, cancellationToken);
     }
 
+    public Task<RolPermisoMatrizResponse> ObtenerMatrizPermisosAsync(
+        long rolId,
+        CancellationToken cancellationToken = default)
+    {
+        return _rolesRepository.ObtenerMatrizPermisosAsync(rolId, cancellationToken);
+    }
+
+    public Task<RolPermisoMatrizResponse> GuardarMatrizPermisosAsync(
+        long rolId,
+        GuardarMatrizRolPermisosRequest request,
+        long? usuarioIdAccion,
+        string? ipAddress,
+        string? userAgent,
+        CancellationToken cancellationToken = default)
+    {
+        return _rolesRepository.GuardarMatrizPermisosAsync(
+            rolId,
+            request,
+            usuarioIdAccion,
+            ipAddress,
+            userAgent,
+            cancellationToken);
+    }
+
     public Task<RolPermisoAsignadoResponse> AsignarPermisoAsync(
         long rolId,
         AsignarPermisoRolRequest request,

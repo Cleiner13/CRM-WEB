@@ -62,9 +62,6 @@ export type RoleOperationResponse = {
 
 export type AppPermission = {
   permisoId: number;
-  moduloId: number;
-  moduloCodigo?: string | null;
-  moduloNombre?: string | null;
   codigo: string;
   nombre: string;
   descripcion?: string | null;
@@ -75,7 +72,6 @@ export type AppPermission = {
 
 export type SavePermissionRequest = {
   permisoId?: number;
-  moduloId: number;
   codigo: string;
   nombre: string;
   descripcion?: string | null;
@@ -84,7 +80,6 @@ export type SavePermissionRequest = {
 
 export type SavePermissionResponse = {
   permisoId: number;
-  moduloId: number;
   codigo: string;
   nombre: string;
   activo: boolean;

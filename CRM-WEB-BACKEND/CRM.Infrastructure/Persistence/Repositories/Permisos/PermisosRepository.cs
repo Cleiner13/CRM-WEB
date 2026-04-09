@@ -25,7 +25,6 @@ public class PermisosRepository : IPermisosRepository
         using var connection = _connectionFactory.CreateConnection();
 
         var parameters = new DynamicParameters();
-        parameters.Add("@ModuloId", moduloId, DbType.Int64);
         parameters.Add("@Buscar", buscar, DbType.String);
         parameters.Add("@SoloActivos", soloActivos, DbType.Boolean);
 
@@ -50,7 +49,6 @@ public class PermisosRepository : IPermisosRepository
 
         var parameters = new DynamicParameters();
         parameters.Add("@PermisoId", request.PermisoId, DbType.Int64);
-        parameters.Add("@ModuloId", request.ModuloId, DbType.Int64);
         parameters.Add("@Codigo", request.Codigo, DbType.String);
         parameters.Add("@Nombre", request.Nombre, DbType.String);
         parameters.Add("@Descripcion", request.Descripcion, DbType.String);
