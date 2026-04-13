@@ -35,6 +35,10 @@ function buildUsersQuery(params: ListUsersParams = {}): string {
     query.set("areaId", String(params.areaId));
   }
 
+  if (params.cargoId) {
+    query.set("cargoId", String(params.cargoId));
+  }
+
   if (params.rolId) {
     query.set("rolId", String(params.rolId));
   }

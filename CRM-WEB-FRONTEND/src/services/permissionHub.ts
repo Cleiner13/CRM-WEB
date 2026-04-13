@@ -1,4 +1,4 @@
-import { HubConnection, HubConnectionBuilder, HubConnectionState, HttpTransportType, LogLevel } from "@microsoft/signalr";
+import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from "@microsoft/signalr";
 import { authService } from "./auth";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://localhost:7076/api";
@@ -24,7 +24,6 @@ type UserStatusChangedHandler = (payload: UserStatusChangedPayload) => void;
 
 let connection: HubConnection | null = null;
 let connectionPromise: Promise<void> | null = null;
-let isHubUnavailable = false;
 const permissionChangedHandlers = new Set<PermissionChangedHandler>();
 const userStatusChangedHandlers = new Set<UserStatusChangedHandler>();
 
@@ -36,13 +35,9 @@ function buildConnection(): HubConnection {
   const builder = new HubConnectionBuilder()
     .withUrl(SIGNALR_HUB_URL, {
       accessTokenFactory: () => authService.getAccessToken() ?? "",
-      transport: import.meta.env.DEV ? HttpTransportType.ServerSentEvents : undefined,
     })
-    .configureLogging(LogLevel.None);
-
-  if (!import.meta.env.DEV) {
-    builder.withAutomaticReconnect([0, 2000, 10000, 30000]);
-  }
+    .withAutomaticReconnect([0, 2000, 10000, 30000])
+    .configureLogging(import.meta.env.DEV ? LogLevel.Information : LogLevel.Warning);
 
   return builder.build();
 }
@@ -77,37 +72,32 @@ function attachHandlers(hub: HubConnection): void {
   });
 
   hub.onreconnecting((error) => {
-    if (import.meta.env.DEV) {
-      console.info("PermissionHub: reconnecting", error?.message ?? "");
-    }
+    console.info("PermissionHub: reconnecting", error?.message ?? "");
   });
 
   hub.onreconnected((connectionId) => {
-    isHubUnavailable = false;
-    if (import.meta.env.DEV) {
-      console.info("PermissionHub: reconnected", connectionId ?? "");
-    }
+    console.info("PermissionHub: reconnected", connectionId ?? "");
   });
 
-  hub.onclose(() => {
+  hub.onclose((error) => {
+    console.info("PermissionHub: closed", error?.message ?? "");
     connection = null;
     connectionPromise = null;
   });
 }
 
 async function startConnection(): Promise<void> {
-  connection = buildConnection();
-  attachHandlers(connection);
-  await connection.start();
+  const hub = buildConnection();
+  connection = hub;
+  attachHandlers(hub);
+  console.info("PermissionHub: connecting", SIGNALR_HUB_URL);
+  await hub.start();
+  console.info("PermissionHub: connected", hub.connectionId ?? "");
 }
 
 export const permissionHubService = {
   async start(): Promise<boolean> {
     if (!authService.isAuthenticated() || !authService.getAccessToken()) {
-      return false;
-    }
-
-    if (isHubUnavailable) {
       return false;
     }
 
@@ -122,12 +112,9 @@ export const permissionHubService = {
 
     connectionPromise = startConnection()
       .catch((error) => {
-        isHubUnavailable = true;
         void connection?.stop().catch(() => {});
         connection = null;
-        if (import.meta.env.DEV) {
-          console.info("PermissionHub: realtime no disponible, la aplicacion continuara sin websocket.");
-        }
+        console.warn("PermissionHub: realtime no disponible, la aplicacion continuara sin conexion en tiempo real.", error);
         void error;
       })
       .finally(() => {

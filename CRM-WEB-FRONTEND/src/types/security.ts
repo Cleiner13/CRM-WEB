@@ -147,5 +147,6 @@ export type ListUsersParams = {
   texto?: string;
   soloActivos?: boolean;
   areaId?: number;
+  cargoId?: number;
   rolId?: number;
 };

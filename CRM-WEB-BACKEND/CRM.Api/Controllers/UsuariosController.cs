@@ -214,10 +214,11 @@ public class UsuariosController : ControllerBase
     {
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
         var userAgent = Request.Headers.UserAgent.ToString();
+        var usuarioAccionId = _currentUserService.UsuarioId ?? id;
 
         var result = await _usuariosService.DesactivarUsuarioAsync(
             id,
-            _currentUserService.UsuarioId,
+            usuarioAccionId,
             ipAddress,
             userAgent,
             cancellationToken);
@@ -245,10 +246,11 @@ public class UsuariosController : ControllerBase
     {
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
         var userAgent = Request.Headers.UserAgent.ToString();
+        var usuarioAccionId = _currentUserService.UsuarioId ?? id;
 
         var result = await _usuariosService.ReactivarUsuarioAsync(
             id,
-            _currentUserService.UsuarioId,
+            usuarioAccionId,
             ipAddress,
             userAgent,
             cancellationToken);

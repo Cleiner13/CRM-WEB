@@ -50,10 +50,15 @@ export function AppShell(): JSX.Element {
   const [permissionRefreshToken, setPermissionRefreshToken] = useState(0);
   const enrichingUserIdRef = useRef<number | null>(null);
   const profilePermissionsRef = useRef<MiPerfilPermiso[]>([]);
+  const currentBranchRef = useRef<NavigationItem[]>([]);
   const navigate = useNavigate();
   const location = useLocation();
 
   const currentBranch = useMemo(() => findNavigationBranch(NAVIGATION_MENU, location.pathname), [location.pathname]);
+
+  useEffect(() => {
+    currentBranchRef.current = currentBranch;
+  }, [currentBranch]);
 
   useEffect(() => {
     let unsubscribePermissionChanged: (() => void) | undefined;
@@ -144,7 +149,7 @@ export function AppShell(): JSX.Element {
         const nextPermissions = await syncDisplayUser(authService.getCurrentUser(), true);
         setPermissionRefreshToken((current) => current + 1);
 
-        const branchModuleIds = currentBranch.map((item) => item.moduleId).filter((value): value is number => typeof value === "number");
+        const branchModuleIds = currentBranchRef.current.map((item) => item.moduleId).filter((value): value is number => typeof value === "number");
         const currentLeafModuleId = [...branchModuleIds].reverse()[0];
 
         const lostViewAccess = branchModuleIds.some((moduleId) => canViewModule(previousPermissions, moduleId) && !canViewModule(nextPermissions, moduleId));
@@ -256,7 +261,7 @@ export function AppShell(): JSX.Element {
       }
       void permissionHubService.stop();
     };
-  }, [currentBranch, navigate]);
+  }, [navigate]);
 
   const handleNoticeClose = (): void => {
     const redirectTo = notice?.redirectTo;

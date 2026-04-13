@@ -9,3 +9,5 @@ export * from "./role";
 export * from "./tablasMaestras";
 export * from "./permission";
 export * from "./user";
+export * from "./auditoria";
+export * from "./empleados";

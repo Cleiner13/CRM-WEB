@@ -3,9 +3,9 @@ import { Download, Pencil, Plus, Trash2 } from "lucide-react";
 import { Badge, Button, Card, Input, Modal, Pagination, Select, Table, Textarea } from "@/components/ui";
 import type { TableColumn } from "@/components/ui";
 import { DEFAULT_PAGE_SIZE } from "@/config/constants";
-import { itemsMaestrosService, moduleService, permissionService, relacionesItemsMaestrosService, roleService, tablasMaestrasService } from "@/services";
-import type { AppItemMaestro, AppModule, AppPermission, AppRelacionItemMaestro, AppRole, AppTablaMaestra } from "@/types";
-import { formatDate } from "@/utils";
+import { itemsMaestrosService, moduleService, permissionService, profileService, relacionesItemsMaestrosService, roleService, tablasMaestrasService } from "@/services";
+import type { AppItemMaestro, AppModule, AppPermission, AppRelacionItemMaestro, AppRole, AppTablaMaestra, MiPerfilPermiso } from "@/types";
+import { formatDate, hasModulePermissionByCode } from "@/utils";
 
 type MaintenanceTableKey = "masterTables" | "modules" | "roles" | "permissions";
 type CatalogRow = AppModule | AppRole | AppTablaMaestra | AppPermission;
@@ -51,6 +51,16 @@ type TableMeta = {
 };
 
 type FeedbackVariant = "info" | "error";
+
+const MANTENIMIENTO_TABLAS_MODULE_CODE = "CONFIGURACION.MANTENIMIENTO_TABLAS";
+const ACTION_CODES = {
+  create: "CREAR",
+  edit: "EDITAR",
+  save: "GUARDAR",
+  delete: "ELIMINAR",
+  export: "EXPORTAR",
+  clear: "LIMPIAR",
+} as const;
 
 const INITIAL_FORM: CatalogFormState = {
   codigo: "",
@@ -204,6 +214,7 @@ export function MantenimientoTablasPage(): JSX.Element {
   const [feedbackTitle, setFeedbackTitle] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackVariant, setFeedbackVariant] = useState<FeedbackVariant>("info");
+  const [profilePermissions, setProfilePermissions] = useState<MiPerfilPermiso[]>([]);
   const [selectedMasterTable, setSelectedMasterTable] = useState<AppTablaMaestra | null>(null);
   const [itemSearch, setItemSearch] = useState("");
   const [itemStatusFilter, setItemStatusFilter] = useState<"all" | "active">("active");
@@ -247,6 +258,28 @@ export function MantenimientoTablasPage(): JSX.Element {
     setFeedbackMessage(message);
     setFeedbackVariant(variant);
     setIsFeedbackOpen(true);
+  };
+
+  const ensureActionPermission = async (actionCode: string, actionLabel: string): Promise<boolean> => {
+    let currentPermissions = profilePermissions;
+
+    if (!hasModulePermissionByCode(currentPermissions, MANTENIMIENTO_TABLAS_MODULE_CODE, actionCode)) {
+      try {
+        const profile = await profileService.getMyProfile();
+        currentPermissions = profile.permisos ?? [];
+        setProfilePermissions(currentPermissions);
+      } catch {
+        currentPermissions = profilePermissions;
+      }
+    }
+
+    const allowed = hasModulePermissionByCode(currentPermissions, MANTENIMIENTO_TABLAS_MODULE_CODE, actionCode);
+    if (allowed) {
+      return true;
+    }
+
+    openFeedbackModal("Acceso denegado", `No tienes permiso para ${actionLabel.toLowerCase()} en esta vista.`, "error");
+    return false;
   };
 
   const filteredRows = useMemo(() => {
@@ -304,6 +337,10 @@ export function MantenimientoTablasPage(): JSX.Element {
             <Button
               leftIcon={<Pencil size={14} />}
               onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.edit, "editar"))) {
+                    return;
+                  }
                 setSelectedCatalogRow(row);
                 setForm({
                   id: getRowId(row),
@@ -314,6 +351,7 @@ export function MantenimientoTablasPage(): JSX.Element {
                 });
                 setFormErrors({});
                 setIsFormOpen(true);
+                })();
               }}
               size="sm"
               variant="edit"
@@ -323,8 +361,13 @@ export function MantenimientoTablasPage(): JSX.Element {
             <Button
               leftIcon={<Trash2 size={14} />}
               onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.delete, row.activo ? "inactivar" : "reactivar"))) {
+                    return;
+                  }
                 setSelectedCatalogRow(row);
                 setIsDeleteOpen(true);
+                })();
               }}
               size="sm"
               variant={row.activo ? "delete" : "create"}
@@ -397,6 +440,19 @@ export function MantenimientoTablasPage(): JSX.Element {
       window.clearTimeout(timeoutId);
     };
   }, [activeTable, draftSearch, statusFilter]);
+
+  useEffect(() => {
+    const loadProfilePermissions = async (): Promise<void> => {
+      try {
+        const profile = await profileService.getMyProfile();
+        setProfilePermissions(profile.permisos ?? []);
+      } catch {
+        setProfilePermissions([]);
+      }
+    };
+
+    void loadProfilePermissions();
+  }, []);
 
   const loadItems = async (
     tablaMaestra = selectedMasterTable,
@@ -512,6 +568,10 @@ export function MantenimientoTablasPage(): JSX.Element {
       return;
     }
 
+    if (!(await ensureActionPermission(ACTION_CODES.save, "guardar"))) {
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -566,6 +626,10 @@ export function MantenimientoTablasPage(): JSX.Element {
 
   const handleChangeStatus = async (): Promise<void> => {
     if (!selectedCatalogRow) {
+      return;
+    }
+
+    if (!(await ensureActionPermission(ACTION_CODES.delete, selectedCatalogRow.activo ? "inactivar" : "reactivar"))) {
       return;
     }
 
@@ -661,6 +725,10 @@ export function MantenimientoTablasPage(): JSX.Element {
       return;
     }
 
+    if (!(await ensureActionPermission(ACTION_CODES.save, "guardar"))) {
+      return;
+    }
+
     setIsItemSaving(true);
 
     try {
@@ -688,6 +756,10 @@ export function MantenimientoTablasPage(): JSX.Element {
 
   const handleChangeItemStatus = async (): Promise<void> => {
     if (!selectedItem || !selectedMasterTable) {
+      return;
+    }
+
+    if (!(await ensureActionPermission(ACTION_CODES.delete, selectedItem.activo ? "inactivar" : "reactivar"))) {
       return;
     }
 
@@ -744,6 +816,10 @@ export function MantenimientoTablasPage(): JSX.Element {
       return;
     }
 
+    if (!(await ensureActionPermission(ACTION_CODES.save, "guardar"))) {
+      return;
+    }
+
     setIsRelationSaving(true);
 
     try {
@@ -772,6 +848,10 @@ export function MantenimientoTablasPage(): JSX.Element {
 
   const handleChangeRelationStatus = async (): Promise<void> => {
     if (!selectedRelation || !selectedParentItem) {
+      return;
+    }
+
+    if (!(await ensureActionPermission(ACTION_CODES.delete, selectedRelation.activo ? "inactivar" : "reactivar"))) {
       return;
     }
 
@@ -828,6 +908,10 @@ export function MantenimientoTablasPage(): JSX.Element {
             <Button
               leftIcon={<Pencil size={14} />}
               onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.edit, "editar"))) {
+                    return;
+                  }
                 setSelectedItem(row);
                 setItemForm({
                   id: row.itemMaestroId,
@@ -838,6 +922,7 @@ export function MantenimientoTablasPage(): JSX.Element {
                 });
                 setItemFormErrors({});
                 setIsItemFormOpen(true);
+                })();
               }}
               size="sm"
               variant="edit"
@@ -847,8 +932,13 @@ export function MantenimientoTablasPage(): JSX.Element {
             <Button
               leftIcon={<Trash2 size={14} />}
               onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.delete, row.activo ? "inactivar" : "reactivar"))) {
+                    return;
+                  }
                 setSelectedItem(row);
                 setIsItemStatusOpen(true);
+                })();
               }}
               size="sm"
               variant={row.activo ? "delete" : "create"}
@@ -897,6 +987,10 @@ export function MantenimientoTablasPage(): JSX.Element {
             <Button
               leftIcon={<Pencil size={14} />}
               onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.edit, "editar"))) {
+                    return;
+                  }
                 setSelectedRelation(row);
                 setRelationForm({
                   id: row.relacionId,
@@ -907,6 +1001,7 @@ export function MantenimientoTablasPage(): JSX.Element {
                 });
                 setRelationFormErrors({});
                 setIsRelationFormOpen(true);
+                })();
               }}
               size="sm"
               variant="edit"
@@ -916,8 +1011,13 @@ export function MantenimientoTablasPage(): JSX.Element {
             <Button
               leftIcon={<Trash2 size={14} />}
               onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.delete, row.activo ? "inactivar" : "reactivar"))) {
+                    return;
+                  }
                 setSelectedRelation(row);
                 setIsRelationStatusOpen(true);
+                })();
               }}
               size="sm"
               variant={row.activo ? "delete" : "create"}
@@ -979,10 +1079,15 @@ export function MantenimientoTablasPage(): JSX.Element {
           <div className="flex flex-wrap items-center gap-2 xl:justify-end">
             <Button
               onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.clear, "limpiar filtros"))) {
+                    return;
+                  }
                 setDraftSearch("");
                 setStatusFilter("active");
                 setPage(1);
                 void loadCurrentTable(activeTable, "", "active");
+                })();
               }}
               variant="clear"
             >
@@ -1027,19 +1132,36 @@ export function MantenimientoTablasPage(): JSX.Element {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                leftIcon={<Plus size={16} />}
-                onClick={() => {
+            <Button
+              leftIcon={<Plus size={16} />}
+              onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.create, "crear"))) {
+                    return;
+                  }
                   setSelectedCatalogRow(null);
                   setForm(INITIAL_FORM);
                   setFormErrors({});
                   setIsFormOpen(true);
-                }}
+                })();
+              }}
                 variant="create"
               >
                 Crear
               </Button>
-              <Button leftIcon={<Download size={16} />} onClick={() => downloadCsv(meta.exportFilename, buildCsv(filteredRows))} variant="export">
+            <Button
+              leftIcon={<Download size={16} />}
+              onClick={() => {
+                void (async () => {
+                  if (!(await ensureActionPermission(ACTION_CODES.export, "exportar"))) {
+                    return;
+                  }
+
+                  downloadCsv(meta.exportFilename, buildCsv(filteredRows));
+                })();
+              }}
+                variant="export"
+              >
                 Exportar
               </Button>
             </div>
@@ -1119,10 +1241,15 @@ export function MantenimientoTablasPage(): JSX.Element {
                   disabled={!selectedMasterTable}
                   leftIcon={<Plus size={16} />}
                   onClick={() => {
+                    void (async () => {
+                      if (!(await ensureActionPermission(ACTION_CODES.create, "crear"))) {
+                        return;
+                      }
                     setSelectedItem(null);
                     setItemForm(INITIAL_ITEM_FORM);
                     setItemFormErrors({});
                     setIsItemFormOpen(true);
+                    })();
                   }}
                   variant="create"
                 >
@@ -1191,15 +1318,20 @@ export function MantenimientoTablasPage(): JSX.Element {
                   value={relationStatusFilter}
                 />
                 <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                  <Button
-                    disabled={!selectedParentItem}
-                    leftIcon={<Plus size={16} />}
-                    onClick={() => {
+                <Button
+                  disabled={!selectedParentItem}
+                  leftIcon={<Plus size={16} />}
+                  onClick={() => {
+                    void (async () => {
+                      if (!(await ensureActionPermission(ACTION_CODES.create, "crear"))) {
+                        return;
+                      }
                       setSelectedRelation(null);
                       setRelationForm(INITIAL_RELATION_FORM);
                       setRelationFormErrors({});
                       setIsRelationFormOpen(true);
-                    }}
+                    })();
+                  }}
                     variant="create"
                   >
                     Crear relacion

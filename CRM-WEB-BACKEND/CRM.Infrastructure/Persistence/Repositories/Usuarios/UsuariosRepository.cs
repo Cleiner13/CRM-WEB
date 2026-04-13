@@ -446,21 +446,43 @@ public class UsuariosRepository : IUsuariosRepository
     string? userAgent,
     CancellationToken cancellationToken = default)
     {
-        using var connection = _connectionFactory.CreateConnection();
+        try
+        {
+            using var connection = _connectionFactory.CreateConnection();
 
-        var parameters = new DynamicParameters();
-        parameters.Add("@UsuarioId", usuarioId, DbType.Int64);
-        parameters.Add("@UsuarioIdAccion", usuarioIdAccion, DbType.Int64);
-        parameters.Add("@IpAddress", ipAddress, DbType.String);
-        parameters.Add("@UserAgent", userAgent, DbType.String);
+            var parameters = new DynamicParameters();
+            parameters.Add("@UsuarioId", usuarioId, DbType.Int64);
+            parameters.Add("@Motivo", null, DbType.String);
+            parameters.Add("@UsuarioAccionId", usuarioIdAccion, DbType.Int64);
+            parameters.Add("@IpAddress", string.IsNullOrWhiteSpace(ipAddress) ? null : ipAddress.Trim()[..Math.Min(ipAddress.Trim().Length, 80)], DbType.String);
+            parameters.Add("@UserAgent", string.IsNullOrWhiteSpace(userAgent) ? null : userAgent.Trim()[..Math.Min(userAgent.Trim().Length, 200)], DbType.String);
 
-        var command = new CommandDefinition(
-            commandText: "seg.usp_Usuarios_Desactivar",
-            parameters: parameters,
-            commandType: CommandType.StoredProcedure,
-            cancellationToken: cancellationToken);
+            var command = new CommandDefinition(
+                commandText: "seg.usp_Usuarios_Desactivar",
+                parameters: parameters,
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken);
 
-        return await connection.QueryFirstAsync<OperacionResponse>(command);
+            return await connection.QueryFirstAsync<OperacionResponse>(command);
+        }
+        catch (SqlException ex)
+        {
+            return await DesactivarUsuarioFallbackAsync(
+                usuarioId,
+                usuarioIdAccion,
+                ipAddress,
+                userAgent,
+                ex,
+                cancellationToken);
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new AppException(500, ex.Message);
+        }
+        catch (Exception ex) when (ex is not AppException)
+        {
+            throw new AppException(500, "No se pudo desactivar el usuario.", new List<string> { ex.Message });
+        }
     }
 
     public async Task<OperacionResponse> ReactivarUsuarioAsync(
@@ -470,21 +492,36 @@ public class UsuariosRepository : IUsuariosRepository
         string? userAgent,
         CancellationToken cancellationToken = default)
     {
-        using var connection = _connectionFactory.CreateConnection();
+        try
+        {
+            using var connection = _connectionFactory.CreateConnection();
 
-        var parameters = new DynamicParameters();
-        parameters.Add("@UsuarioId", usuarioId, DbType.Int64);
-        parameters.Add("@UsuarioIdAccion", usuarioIdAccion, DbType.Int64);
-        parameters.Add("@IpAddress", ipAddress, DbType.String);
-        parameters.Add("@UserAgent", userAgent, DbType.String);
+            var parameters = new DynamicParameters();
+            parameters.Add("@UsuarioId", usuarioId, DbType.Int64);
+            parameters.Add("@UsuarioIdAccion", usuarioIdAccion, DbType.Int64);
+            parameters.Add("@IpAddress", string.IsNullOrWhiteSpace(ipAddress) ? null : ipAddress.Trim()[..Math.Min(ipAddress.Trim().Length, 50)], DbType.String);
+            parameters.Add("@UserAgent", string.IsNullOrWhiteSpace(userAgent) ? null : userAgent.Trim()[..Math.Min(userAgent.Trim().Length, 300)], DbType.String);
 
-        var command = new CommandDefinition(
-            commandText: "seg.usp_Usuarios_Reactivar",
-            parameters: parameters,
-            commandType: CommandType.StoredProcedure,
-            cancellationToken: cancellationToken);
+            var command = new CommandDefinition(
+                commandText: "seg.usp_Usuarios_Reactivar",
+                parameters: parameters,
+                commandType: CommandType.StoredProcedure,
+                cancellationToken: cancellationToken);
 
-        return await connection.QueryFirstAsync<OperacionResponse>(command);
+            return await connection.QueryFirstAsync<OperacionResponse>(command);
+        }
+        catch (SqlException ex)
+        {
+            throw new AppException(400, ex.Message, ex.Errors.Cast<SqlError>().Select(error => error.Message).ToList());
+        }
+        catch (InvalidOperationException ex)
+        {
+            throw new AppException(500, ex.Message);
+        }
+        catch (Exception ex) when (ex is not AppException)
+        {
+            throw new AppException(500, "No se pudo reactivar el usuario.", new List<string> { ex.Message });
+        }
     }
 
     public async Task<UsuarioResetEmpleadoResponse> CrearResetUsuarioEmpleadoAsync(
@@ -600,6 +637,213 @@ public class UsuariosRepository : IUsuariosRepository
         public string? Fuente { get; set; }
         public long? UsuarioPermisoId { get; set; }
         public string? Motivo { get; set; }
+    }
+
+    private async Task<OperacionResponse> DesactivarUsuarioFallbackAsync(
+        long usuarioId,
+        long? usuarioIdAccion,
+        string? ipAddress,
+        string? userAgent,
+        SqlException originalException,
+        CancellationToken cancellationToken)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        if (connection is not SqlConnection sqlConnection)
+        {
+            throw new AppException(400, originalException.Message, originalException.Errors.Cast<SqlError>().Select(error => error.Message).ToList());
+        }
+
+        if (sqlConnection.State != ConnectionState.Open)
+        {
+            await sqlConnection.OpenAsync(cancellationToken);
+        }
+
+        await using var transaction = await sqlConnection.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            const string currentUserSql = """
+                SELECT TOP (1)
+                    UsuarioId,
+                    Activo
+                FROM seg.Usuarios
+                WHERE UsuarioId = @UsuarioId;
+                """;
+
+            var current = await sqlConnection.QueryFirstOrDefaultAsync<UsuarioEstadoDbModel>(
+                new CommandDefinition(
+                    currentUserSql,
+                    new { UsuarioId = usuarioId },
+                    transaction,
+                    cancellationToken: cancellationToken));
+
+            if (current is null)
+            {
+                throw new AppException(404, "El UsuarioId no existe.");
+            }
+
+            if (!current.Activo)
+            {
+                throw new AppException(400, "El usuario ya se encuentra inactivo.");
+            }
+
+            var now = DateTime.Now;
+
+            const string disableUserSql = """
+                UPDATE seg.Usuarios
+                SET Activo = 0,
+                    IntentosFallidos = 0,
+                    BloqueoHasta = NULL,
+                    FechaModificacion = @Now,
+                    UsuarioModificacionId = @UsuarioAccionId
+                WHERE UsuarioId = @UsuarioId;
+                """;
+
+            await sqlConnection.ExecuteAsync(
+                new CommandDefinition(
+                    disableUserSql,
+                    new
+                    {
+                        UsuarioId = usuarioId,
+                        UsuarioAccionId = usuarioIdAccion,
+                        Now = now
+                    },
+                    transaction,
+                    cancellationToken: cancellationToken));
+
+            const string refreshTokenExistsSql = """
+                SELECT COUNT(1)
+                FROM sys.objects
+                WHERE object_id = OBJECT_ID(N'seg.RefreshTokens')
+                  AND type = 'U';
+                """;
+
+            var refreshTokensExists = await sqlConnection.ExecuteScalarAsync<int>(
+                new CommandDefinition(
+                    refreshTokenExistsSql,
+                    transaction: transaction,
+                    cancellationToken: cancellationToken));
+
+            if (refreshTokensExists > 0)
+            {
+                const string revokeTokensSql = """
+                    UPDATE seg.RefreshTokens
+                    SET Activo = CASE WHEN COL_LENGTH('seg.RefreshTokens', 'Activo') IS NOT NULL THEN 0 ELSE Activo END
+                    WHERE UsuarioId = @UsuarioId;
+                    """;
+
+                try
+                {
+                    await sqlConnection.ExecuteAsync(
+                        new CommandDefinition(
+                            revokeTokensSql,
+                            new { UsuarioId = usuarioId },
+                            transaction,
+                            cancellationToken: cancellationToken));
+                }
+                catch
+                {
+                }
+            }
+
+            var normalizedIp = string.IsNullOrWhiteSpace(ipAddress)
+                ? null
+                : ipAddress.Trim()[..Math.Min(ipAddress.Trim().Length, 50)];
+
+            var normalizedUserAgent = string.IsNullOrWhiteSpace(userAgent)
+                ? null
+                : userAgent.Trim()[..Math.Min(userAgent.Trim().Length, 300)];
+
+            if (usuarioIdAccion.HasValue)
+            {
+                const string auditSql = """
+                    INSERT INTO aud.LogAuditoria
+                    (
+                        UsuarioId,
+                        Accion,
+                        Entidad,
+                        ClaveEntidad,
+                        AntesJson,
+                        DespuesJson,
+                        IpAddress,
+                        UserAgent,
+                        DatosExtra,
+                        Activo,
+                        FechaCreacion,
+                        UsuarioCreacionId
+                    )
+                    VALUES
+                    (
+                        @UsuarioIdAccion,
+                        N'USUARIO_DESACTIVAR',
+                        N'seg.Usuarios',
+                        CONVERT(NVARCHAR(100), @UsuarioId),
+                        NULL,
+                        NULL,
+                        @IpAddress,
+                        @UserAgent,
+                        N'{"SoloAccesoTecnico":true}',
+                        1,
+                        @Now,
+                        @UsuarioIdAccion
+                    );
+                    """;
+
+                try
+                {
+                    await sqlConnection.ExecuteAsync(
+                        new CommandDefinition(
+                            auditSql,
+                            new
+                            {
+                                UsuarioId = usuarioId,
+                                UsuarioIdAccion = usuarioIdAccion,
+                                IpAddress = normalizedIp,
+                                UserAgent = normalizedUserAgent,
+                                Now = now
+                            },
+                            transaction,
+                            cancellationToken: cancellationToken));
+                }
+                catch
+                {
+                }
+            }
+
+            await transaction.CommitAsync(cancellationToken);
+
+            return new OperacionResponse
+            {
+                Ok = true,
+                Mensaje = "Usuario desactivado correctamente."
+            };
+        }
+        catch (AppException)
+        {
+            if (transaction.Connection is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+            throw;
+        }
+        catch (Exception fallbackException)
+        {
+            if (transaction.Connection is not null)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+            }
+
+            throw new AppException(
+                400,
+                originalException.Message,
+                new List<string> { originalException.Message, fallbackException.Message });
+        }
+    }
+
+    private sealed class UsuarioEstadoDbModel
+    {
+        public long UsuarioId { get; set; }
+        public bool Activo { get; set; }
     }
 
 }

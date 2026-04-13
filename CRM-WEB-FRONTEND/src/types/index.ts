@@ -7,3 +7,5 @@ export * from "./tablasMaestras";
 export * from "./itemsMaestros";
 export * from "./relacionesItemsMaestros";
 export * from "./areasRolesDefault";
+export * from "./auditoria";
+export * from "./empleados";
