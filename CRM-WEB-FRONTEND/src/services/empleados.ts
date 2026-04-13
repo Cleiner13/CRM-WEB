@@ -56,19 +56,17 @@ export const empleadosService = {
   },
 
   async searchByDocument(numeroDocumento: string, tipoDocumentoId?: number | null): Promise<EmpleadoBuscarPorDocumento | null> {
-    const query = new URLSearchParams({ numeroDocumento });
+    const query = new URLSearchParams({ numeroDocumento: numeroDocumento.trim() });
+
     if (tipoDocumentoId) {
       query.set("tipoDocumentoId", String(tipoDocumentoId));
     }
 
-    try {
-      return await httpClientGet<EmpleadoBuscarPorDocumento>(`/empleados/buscar-por-documento?${query.toString()}`);
-    } catch (error) {
-      if ((error as Error & { status?: number }).status === 404) {
-        return null;
-      }
-      throw error;
-    }
+    const response = await httpClientGet<EmpleadoBuscarPorDocumento>(
+      `/empleados/buscar-por-documento?${query.toString()}`
+    );
+
+    return response.encontrado ? response : null;
   },
 
   async save(payload: SaveEmpleadoRequest): Promise<SaveEmpleadoResponse> {
