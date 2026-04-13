@@ -1,6 +1,7 @@
 import type {
   EmpleadoBuscarPorDocumento,
   EmpleadoCompleto,
+  EmpleadoConsultaDni,
   EmpleadoListItem,
   EmpleadoOperacionResponse,
   ListEmpleadosParams,
@@ -77,4 +78,18 @@ export const empleadosService = {
   async deactivate(empleadoId: number): Promise<EmpleadoOperacionResponse> {
     return httpClientPost<EmpleadoOperacionResponse>(`/empleados/${empleadoId}/desactivar`);
   },
+
+  async consultarDni(numeroDocumento: string): Promise<EmpleadoConsultaDni | null> {
+  const query = new URLSearchParams({ numeroDocumento: numeroDocumento.trim() });
+
+  try {
+    return await httpClientGet<EmpleadoConsultaDni>(`/empleados/consultar-dni?${query.toString()}`);
+  } catch (error) {
+    if ((error as Error & { status?: number }).status === 404) {
+      return null;
+    }
+
+    throw error;
+  }
+},
 };

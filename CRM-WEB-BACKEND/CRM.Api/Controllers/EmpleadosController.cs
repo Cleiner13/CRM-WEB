@@ -208,4 +208,23 @@ public class EmpleadosController : ControllerBase
             result,
             result.Mensaje ?? "Validación correcta."));
     }
+
+    [HttpGet("consultar-dni")]
+    [ProducesResponseType(typeof(ApiResponse<EmpleadoConsultaDniResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ConsultarDni(
+    [FromQuery] string numeroDocumento,
+    CancellationToken cancellationToken)
+    {
+        var result = await _empleadosService.ConsultarDniAsync(numeroDocumento, cancellationToken);
+
+        if (result is null)
+        {
+            return NotFound(ApiResponse<string>.Fail("DNI no encontrado en RENIEC."));
+        }
+
+        return Ok(ApiResponse<EmpleadoConsultaDniResponse>.Ok(
+            result,
+            "DNI consultado correctamente."));
+    }
 }

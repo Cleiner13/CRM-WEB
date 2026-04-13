@@ -272,3 +272,11 @@ export type EmpleadoOperacionResponse = {
   empleadoId: number;
   mensaje: string;
 };
+
+export type EmpleadoConsultaDni = {
+  numeroDocumento: string;
+  nombres?: string | null;
+  apellidoPaterno?: string | null;
+  apellidoMaterno?: string | null;
+  nombreCompleto?: string | null;
+};

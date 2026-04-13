@@ -51,4 +51,8 @@ public interface IEmpleadosService
     Task<ValidarTipoProductoCampaniasResponse> ValidarTipoProductoCampaniasAsync(
         ValidarTipoProductoCampaniasRequest request,
         CancellationToken cancellationToken = default);
+
+    Task<EmpleadoConsultaDniResponse?> ConsultarDniAsync(
+    string numeroDocumento,
+    CancellationToken cancellationToken = default);
 }

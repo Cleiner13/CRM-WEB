@@ -1,4 +1,5 @@
-﻿using CRM.Application.Common.Models;
+﻿using CRM.Application.Common.Interfaces;
+using CRM.Application.Common.Models;
 using CRM.Application.Features.Empleados.Interfaces;
 using CRM.Application.Features.Empleados.Requests;
 using CRM.Application.Features.Empleados.Responses;
@@ -8,10 +9,21 @@ namespace CRM.Application.Features.Empleados.Services;
 public class EmpleadosService : IEmpleadosService
 {
     private readonly IEmpleadosRepository _empleadosRepository;
+    private readonly IPeruApiDniService _apisPeruDniService;
 
-    public EmpleadosService(IEmpleadosRepository empleadosRepository)
+    public EmpleadosService(
+        IEmpleadosRepository empleadosRepository,
+        IPeruApiDniService apisPeruDniService)
     {
         _empleadosRepository = empleadosRepository;
+        _apisPeruDniService = apisPeruDniService;
+    }
+
+    public Task<EmpleadoConsultaDniResponse?> ConsultarDniAsync(
+        string numeroDocumento,
+        CancellationToken cancellationToken = default)
+    {
+        return _apisPeruDniService.ConsultarDniAsync(numeroDocumento, cancellationToken);
     }
 
     public Task<EmpleadoGuardarUsuarioResponse> GuardarUsuarioAsync(

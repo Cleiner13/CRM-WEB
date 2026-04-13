@@ -278,6 +278,18 @@ export function PersonalPage(): JSX.Element {
     });
   };
 
+  const selectedTipoDocumento = useMemo(
+    () => masters.tipoDocumentoItems.find((item) => String(item.itemMaestroId) === form.tipoDocumentoId),
+    [form.tipoDocumentoId, masters.tipoDocumentoItems],
+  );
+
+  const isSelectedDni = useMemo(() => {
+  const codigo = normalizeCode(selectedTipoDocumento?.codigo);
+  const nombre = normalizeCode(selectedTipoDocumento?.nombre);
+
+  return codigo.includes("DNI") || nombre.includes("DNI");
+  }, [selectedTipoDocumento]);
+
   const ensureActionPermission = async (actionCode: string, actionLabel: string): Promise<boolean> => {
     let currentPermissions = profilePermissions;
     if (!hasModulePermissionByCode(currentPermissions, PERSONAL_MODULE_CODE, actionCode)) {
@@ -409,11 +421,17 @@ export function PersonalPage(): JSX.Element {
       return undefined;
     }
 
+    let cancelled = false;
+
     const timeoutId = window.setTimeout(async () => {
       setDocumentGate("checking");
       setDocumentGateMessage("Validando documento en registros internos...");
+
       try {
         const existing = await empleadosService.searchByDocument(numeroDocumento, tipoDocumentoId);
+
+        if (cancelled) return;
+
         if (existing) {
           setDocumentGate("existing");
           setDocumentGateMessage(`El documento ya existe para ${fullName({
@@ -425,16 +443,48 @@ export function PersonalPage(): JSX.Element {
           return;
         }
 
+        if (isSelectedDni) {
+          setDocumentGateMessage("Documento no encontrado internamente. Consultando RENIEC...");
+
+          const reniec = await empleadosService.consultarDni(numeroDocumento);
+
+        if (!reniec) {
+          setDocumentGate("invalid");
+          setDocumentGateMessage("El DNI no fue encontrado en PeruAPI.");
+          return;
+        }
+
+        const names = splitPeruApiNames(reniec.nombres);
+
+        setForm((current) => ({
+          ...current,
+          apellidoPaterno: reniec.apellidoPaterno?.trim() || current.apellidoPaterno,
+          apellidoMaterno: reniec.apellidoMaterno?.trim() || current.apellidoMaterno,
+          primerNombre: names.primerNombre || current.primerNombre,
+          segundoNombre: names.segundoNombre || current.segundoNombre,
+          nacionalidad: current.nacionalidad?.trim() || "PERUANA",
+        }));
+
         setDocumentGate("ready");
-        setDocumentGateMessage("Documento no encontrado en registros internos. Puede continuar con la ficha. Pendiente conectar validacion RENIEC desde backend.");
+        setDocumentGateMessage("DNI validado correctamente. Se autocompletaron los nombres.");
+          return;
+        }
+
+        setDocumentGate("ready");
+        setDocumentGateMessage("Documento no encontrado en registros internos. Puede continuar con la ficha.");
       } catch (error) {
+        if (cancelled) return;
+
         setDocumentGate("invalid");
         setDocumentGateMessage(error instanceof Error ? error.message : "No se pudo validar el documento.");
       }
     }, 500);
 
-    return () => window.clearTimeout(timeoutId);
-  }, [employeeModalMode, employeeModalOpen, form.numeroDocumento, form.tipoDocumentoId]);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timeoutId);
+    };
+  }, [employeeModalMode, employeeModalOpen, form.numeroDocumento, form.tipoDocumentoId, isSelectedDni]);
 
   const areaOptions = useMemo(() => buildOptions(masters.areaItems, "Todas las areas"), [masters.areaItems]);
   const cargoOptions = useMemo(() => buildOptions(masters.cargoItems, "Todos los cargos"), [masters.cargoItems]);
@@ -585,6 +635,23 @@ export function PersonalPage(): JSX.Element {
       render: (row) => <div className="flex flex-wrap items-center justify-center gap-2"><Button leftIcon={<Pencil size={14} />} onClick={() => void openEditModal(row)} size="sm" variant="edit">Editar</Button>{row.activo ? <Button leftIcon={<UserX size={14} />} onClick={() => setConfirmDeactivate(row)} size="sm" variant="delete">Inactivar</Button> : <Badge variant="neutral">Inactivo</Badge>}</div>,
     },
   ], []);
+
+  const splitPeruApiNames = (value?: string | null): { primerNombre: string; segundoNombre: string } => {
+  const tokens = (value ?? "").trim().split(/\s+/).filter(Boolean);
+
+  if (tokens.length === 0) {
+    return { primerNombre: "", segundoNombre: "" };
+  }
+
+  if (tokens.length === 1) {
+    return { primerNombre: tokens[0], segundoNombre: "" };
+  }
+
+  return {
+    primerNombre: tokens[0],
+    segundoNombre: tokens.slice(1).join(" "),
+  };
+};
 
   return (
     <div className="space-y-5">

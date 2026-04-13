@@ -44,6 +44,7 @@ using CRM.Application.Features.Profile.Interfaces;
 using CRM.Application.Features.Profile.Services;
 using CRM.Infrastructure.Persistence.Repositories.Profile;
 using CRM.Api.Hubs;
+using CRM.Infrastructure.Integrations.PeruApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -129,6 +130,9 @@ builder.Services.AddScoped<IProfileService, ProfileService>();
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
+
+builder.Services.Configure<PeruApiSettings>(builder.Configuration.GetSection("PeruApi"));
+builder.Services.AddHttpClient<IPeruApiDniService, PeruApiDniService>();
 
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var jwtKey = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key no está configurado.");
