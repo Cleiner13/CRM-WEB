@@ -63,7 +63,12 @@ public class EmpleadosController : ControllerBase
 
         if (result is null)
         {
-            return NotFound(ApiResponse<string>.Fail("Empleado no encontrado."));
+            return Ok(ApiResponse<EmpleadoBuscarPorDocumentoResponse>.Ok(
+                new EmpleadoBuscarPorDocumentoResponse
+                {
+                    Encontrado = false
+                },
+                "Empleado no encontrado en registros internos."));
         }
 
         return Ok(ApiResponse<EmpleadoBuscarPorDocumentoResponse>.Ok(
@@ -220,12 +225,7 @@ public class EmpleadosController : ControllerBase
 
         if (result is null)
         {
-            return Ok(ApiResponse<EmpleadoBuscarPorDocumentoResponse>.Ok(
-                new EmpleadoBuscarPorDocumentoResponse
-                {
-                    Encontrado = false
-                },
-                "Empleado no encontrado en registros internos."));
+            return NotFound(ApiResponse<string>.Fail("DNI no encontrado en RENIEC."));
         }
 
         return Ok(ApiResponse<EmpleadoConsultaDniResponse>.Ok(

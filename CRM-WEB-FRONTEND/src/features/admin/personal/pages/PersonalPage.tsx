@@ -283,6 +283,15 @@ export function PersonalPage(): JSX.Element {
     [form.tipoDocumentoId, masters.tipoDocumentoItems],
   );
 
+  const documentMeta = useMemo(
+    () => getDocumentMeta(selectedTipoDocumento),
+    [selectedTipoDocumento],
+  );
+
+  const numeroDocumentoDisabled = employeeModalMode === "edit"
+    ? true
+    : !form.tipoDocumentoId;
+
   const isSelectedDni = useMemo(() => {
   const codigo = normalizeCode(selectedTipoDocumento?.codigo);
   const nombre = normalizeCode(selectedTipoDocumento?.nombre);
@@ -410,47 +419,79 @@ export function PersonalPage(): JSX.Element {
   }, [search, onlyActive, estadoId, areaId, cargoId, page, pageSize]);
 
   useEffect(() => {
-    if (!employeeModalOpen || employeeModalMode !== "create") return undefined;
+  if (!employeeModalOpen || employeeModalMode !== "create") return undefined;
 
     const tipoDocumentoId = form.tipoDocumentoId ? Number(form.tipoDocumentoId) : null;
     const numeroDocumento = form.numeroDocumento.trim();
 
-    if (!tipoDocumentoId || numeroDocumento.length < 8) {
+    if (!tipoDocumentoId) {
       setDocumentGate("idle");
-      setDocumentGateMessage("Seleccione tipo de documento e ingrese el numero para habilitar la ficha.");
+      setDocumentGateMessage("Seleccione tipo de documento para habilitar el número de documento.");
+      return undefined;
+    }
+
+    if (!numeroDocumento) {
+      setDocumentGate("idle");
+      setDocumentGateMessage(
+        documentMeta.expectedLength
+          ? `Ingrese ${documentMeta.expectedLength} dígitos para ${documentMeta.label}.`
+          : "Ingrese el número de documento."
+      );
+      return undefined;
+    }
+
+    if (documentMeta.expectedLength && numeroDocumento.length < documentMeta.expectedLength) {
+      setDocumentGate("idle");
+      setDocumentGateMessage(`El ${documentMeta.label} debe tener ${documentMeta.expectedLength} dígitos.`);
       return undefined;
     }
 
     let cancelled = false;
 
     const timeoutId = window.setTimeout(async () => {
-      setDocumentGate("checking");
-      setDocumentGateMessage("Validando documento en registros internos...");
-
       try {
+        // Solo búsqueda automática para DNI
+        if (documentMeta.kind !== "DNI") {
+          if (documentMeta.kind === "CE") {
+            setDocumentGate("ready");
+            setDocumentGateMessage("Carnet de Extranjería válido. Complete la ficha manualmente.");
+            return;
+          }
+
+          setDocumentGate("ready");
+          setDocumentGateMessage("Documento válido. Puede continuar con la ficha.");
+          return;
+        }
+
+        setDocumentGate("checking");
+        setDocumentGateMessage("Validando DNI en registros internos...");
+
         const existing = await empleadosService.searchByDocument(numeroDocumento, tipoDocumentoId);
 
         if (cancelled) return;
 
         if (existing) {
           setDocumentGate("existing");
-          setDocumentGateMessage(`El documento ya existe para ${fullName({
-            apellidoPaterno: existing.apellidoPaterno,
-            apellidoMaterno: existing.apellidoMaterno,
-            primerNombre: existing.primerNombre,
-            segundoNombre: existing.segundoNombre,
-          })}. Busquelo en los registros de personal para editarlo.`);
+          setDocumentGateMessage(
+            `El documento ya existe para ${fullName({
+              apellidoPaterno: existing.apellidoPaterno,
+              apellidoMaterno: existing.apellidoMaterno,
+              primerNombre: existing.primerNombre,
+              segundoNombre: existing.segundoNombre,
+            })}. Búsquelo en los registros de personal para editarlo.`
+          );
           return;
         }
 
-        if (isSelectedDni) {
-          setDocumentGateMessage("Documento no encontrado internamente. Consultando RENIEC...");
+        setDocumentGateMessage("DNI no encontrado internamente. Consultando RENIEC...");
 
-          const reniec = await empleadosService.consultarDni(numeroDocumento);
+        const reniec = await empleadosService.consultarDni(numeroDocumento);
+
+        if (cancelled) return;
 
         if (!reniec) {
           setDocumentGate("invalid");
-          setDocumentGateMessage("El DNI no fue encontrado en PeruAPI.");
+          setDocumentGateMessage("El DNI no fue encontrado en RENIEC.");
           return;
         }
 
@@ -466,25 +507,26 @@ export function PersonalPage(): JSX.Element {
         }));
 
         setDocumentGate("ready");
-        setDocumentGateMessage("DNI validado correctamente. Se autocompletaron los nombres.");
-          return;
-        }
-
-        setDocumentGate("ready");
-        setDocumentGateMessage("Documento no encontrado en registros internos. Puede continuar con la ficha.");
+        setDocumentGateMessage("DNI validado correctamente en la RENIEC.");
       } catch (error) {
         if (cancelled) return;
 
         setDocumentGate("invalid");
         setDocumentGateMessage(error instanceof Error ? error.message : "No se pudo validar el documento.");
       }
-    }, 500);
+    }, 400);
 
     return () => {
       cancelled = true;
       window.clearTimeout(timeoutId);
     };
-  }, [employeeModalMode, employeeModalOpen, form.numeroDocumento, form.tipoDocumentoId, isSelectedDni]);
+  }, [
+    employeeModalMode,
+    employeeModalOpen,
+    form.numeroDocumento,
+    form.tipoDocumentoId,
+    documentMeta,
+  ]);
 
   const areaOptions = useMemo(() => buildOptions(masters.areaItems, "Todas las areas"), [masters.areaItems]);
   const cargoOptions = useMemo(() => buildOptions(masters.cargoItems, "Todos los cargos"), [masters.cargoItems]);
@@ -613,7 +655,51 @@ export function PersonalPage(): JSX.Element {
       setFeedback({ title: "No se pudo exportar", message: error instanceof Error ? error.message : "No se pudo exportar el personal.", variant: "error" });
     }
   };
+  const handleTipoDocumentoChange = (value: string): void => {
+  const selected = masters.tipoDocumentoItems.find((item) => String(item.itemMaestroId) === value);
+  const meta = getDocumentMeta(selected);
 
+    setForm((current) => ({
+      ...current,
+      tipoDocumentoId: value,
+      numeroDocumento: "",
+      apellidoPaterno: "",
+      apellidoMaterno: "",
+      primerNombre: "",
+      segundoNombre: "",
+      nacionalidad: "",
+    }));
+
+    setFormErrors((current) => {
+      const next = { ...current };
+      delete next.tipoDocumentoId;
+      delete next.numeroDocumento;
+      return next;
+    });
+
+    if (!value) {
+      setDocumentGate("idle");
+      setDocumentGateMessage("Seleccione tipo de documento para habilitar el número de documento.");
+      return;
+    }
+
+    if (meta.expectedLength) {
+      setDocumentGate("idle");
+      setDocumentGateMessage(`Ingrese ${meta.expectedLength} dígitos para ${meta.label}.`);
+      return;
+    }
+
+    setDocumentGate("idle");
+    setDocumentGateMessage("Ingrese el número de documento.");
+  };
+
+  const handleNumeroDocumentoChange = (value: string): void => {
+    const onlyDigits = value.replace(/\D/g, "");
+    const maxLength = documentMeta.expectedLength ?? 20;
+    const sanitized = onlyDigits.slice(0, maxLength);
+
+    setField("numeroDocumento", sanitized);
+  };
   const columns = useMemo<Array<TableColumn<EmpleadoListItem>>>(() => [
     {
       key: "nombre",
@@ -636,22 +722,66 @@ export function PersonalPage(): JSX.Element {
     },
   ], []);
 
-  const splitPeruApiNames = (value?: string | null): { primerNombre: string; segundoNombre: string } => {
-  const tokens = (value ?? "").trim().split(/\s+/).filter(Boolean);
+  type DocumentKind = "DNI" | "CE" | "OTRO";
 
-  if (tokens.length === 0) {
-    return { primerNombre: "", segundoNombre: "" };
-  }
-
-  if (tokens.length === 1) {
-    return { primerNombre: tokens[0], segundoNombre: "" };
-  }
-
-  return {
-    primerNombre: tokens[0],
-    segundoNombre: tokens.slice(1).join(" "),
+  type DocumentMeta = {
+    kind: DocumentKind;
+    label: string;
+    expectedLength: number | null;
+    enableLookup: boolean;
   };
-};
+
+  const getDocumentMeta = (item?: AppItemMaestro | null): DocumentMeta => {
+    const codigo = normalizeCode(item?.codigo);
+    const nombre = normalizeCode(item?.nombre);
+    const text = `${codigo} ${nombre}`;
+
+    if (text.includes("DNI")) {
+      return {
+        kind: "DNI",
+        label: "DNI",
+        expectedLength: 8,
+        enableLookup: true,
+      };
+    }
+
+    if (
+      text.includes("CARNET") ||
+      text.includes("EXTRANJERIA") ||
+      codigo === "CE"
+    ) {
+      return {
+        kind: "CE",
+        label: "Carnet de Extranjería",
+        expectedLength: 9,
+        enableLookup: false,
+      };
+    }
+
+    return {
+      kind: "OTRO",
+      label: item?.nombre ?? "documento",
+      expectedLength: null,
+      enableLookup: false,
+    };
+  };
+
+  const splitPeruApiNames = (value?: string | null): { primerNombre: string; segundoNombre: string } => {
+    const tokens = (value ?? "").trim().split(/\s+/).filter(Boolean);
+
+    if (tokens.length === 0) {
+      return { primerNombre: "", segundoNombre: "" };
+    }
+
+    if (tokens.length === 1) {
+      return { primerNombre: tokens[0], segundoNombre: "" };
+    }
+
+    return {
+      primerNombre: tokens[0],
+      segundoNombre: tokens.slice(1).join(" "),
+    };
+  };
 
   return (
     <div className="space-y-5">
@@ -721,8 +851,8 @@ export function PersonalPage(): JSX.Element {
             <div className="max-h-[calc(88vh-360px)] space-y-5 overflow-y-auto pr-2">
               <Section subtitle="Informacion principal del empleado y datos personales base." title="Datos personales">
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                  <Select errorText={errorFor("tipoDocumentoId", formErrors)} label="Tipo de documento" onChange={(event) => setField("tipoDocumentoId", event.target.value)} options={tipoDocumentoOptions} value={form.tipoDocumentoId} />
-                  <Input disabled={employeeModalMode === "edit"} errorText={errorFor("numeroDocumento", formErrors)} label="Numero de documento" onChange={(event) => setField("numeroDocumento", event.target.value)} value={form.numeroDocumento} />
+                  <Select errorText={errorFor("tipoDocumentoId", formErrors)} label="Tipo de documento" onChange={(event) => handleTipoDocumentoChange(event.target.value)} options={tipoDocumentoOptions} value={form.tipoDocumentoId} />
+                  <Input disabled={numeroDocumentoDisabled} errorText={errorFor("numeroDocumento", formErrors)} label="Numero de documento" onChange={(event) => handleNumeroDocumentoChange(event.target.value)} placeholder={!form.tipoDocumentoId ? "Seleccione un tipo de documento" : documentMeta.expectedLength ? `Ingrese ${documentMeta.expectedLength} dígitos` : "Ingrese el número de documento"} value={form.numeroDocumento} />
                   <fieldset className="contents disabled:opacity-60" disabled={formFieldsDisabled}>
                   <Input errorText={errorFor("apellidoPaterno", formErrors)} label="Apellido paterno" onChange={(event) => setField("apellidoPaterno", event.target.value)} value={form.apellidoPaterno} />
                   <Input errorText={errorFor("apellidoMaterno", formErrors)} label="Apellido materno" onChange={(event) => setField("apellidoMaterno", event.target.value)} value={form.apellidoMaterno} />
