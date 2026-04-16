@@ -13,18 +13,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2F735DD-2B64-4642-845E-BF56F6232EAD}|CRM.Api\\CRM.Api.csproj|solutionrelative:crm.api\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\empleados\\services\\empleadosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\empleados\\services\\empleadosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.infrastructure\\integrations\\apisperu\\apisperudniservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E949D425-C2FA-4DCB-827E-D1C6B96B84BD}|CRM.Infrastructure\\CRM.Infrastructure.csproj|solutionrelative:crm.infrastructure\\integrations\\apisperu\\apisperudniservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|c:\\users\\almpes72733271\\desktop\\git hub\\crm-web\\crm-web-backend\\crm.application\\features\\empleados\\interfaces\\iempleadosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{91D4FF0A-BE39-48F6-B215-1ADEA346558E}|CRM.Application\\CRM.Application.csproj|solutionrelative:crm.application\\features\\empleados\\interfaces\\iempleadosservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -34,7 +22,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 5,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
@@ -58,48 +46,9 @@
               "RelativeDocumentMoniker": "CRM.Api\\Controllers\\EmpleadosController.cs",
               "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\Controllers\\EmpleadosController.cs",
               "RelativeToolTip": "CRM.Api\\Controllers\\EmpleadosController.cs",
-              "ViewState": "AgIAACgAAAAAAAAAAAAAAEAAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAALsAAAAAAAAAAAAmwNEAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-04-13T19:25:01.791Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "EmpleadosService.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Empleados\\Services\\EmpleadosService.cs",
-              "RelativeDocumentMoniker": "CRM.Application\\Features\\Empleados\\Services\\EmpleadosService.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Empleados\\Services\\EmpleadosService.cs",
-              "RelativeToolTip": "CRM.Application\\Features\\Empleados\\Services\\EmpleadosService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAzAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T19:23:37.365Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "IEmpleadosService.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Empleados\\Interfaces\\IEmpleadosService.cs",
-              "RelativeDocumentMoniker": "CRM.Application\\Features\\Empleados\\Interfaces\\IEmpleadosService.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Application\\Features\\Empleados\\Interfaces\\IEmpleadosService.cs",
-              "RelativeToolTip": "CRM.Application\\Features\\Empleados\\Interfaces\\IEmpleadosService.cs",
-              "ViewState": "AgIAAB0AAAAAAAAAAAAIwDQAAAA3AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T19:23:03.943Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ApisPeruDniService.cs",
-              "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Integrations\\ApisPeru\\ApisPeruDniService.cs",
-              "RelativeDocumentMoniker": "CRM.Infrastructure\\Integrations\\ApisPeru\\ApisPeruDniService.cs",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Infrastructure\\Integrations\\ApisPeru\\ApisPeruDniService.cs",
-              "RelativeToolTip": "CRM.Infrastructure\\Integrations\\ApisPeru\\ApisPeruDniService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-04-13T19:21:53.828Z",
               "EditorCaption": ""
             },
             {
@@ -108,9 +57,9 @@
               "Title": "appsettings.json",
               "DocumentMoniker": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json",
               "RelativeDocumentMoniker": "CRM.Api\\appsettings.json",
-              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json",
-              "RelativeToolTip": "CRM.Api\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAfAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\almpes72733271\\Desktop\\GIT HUB\\CRM-WEB\\CRM-WEB-BACKEND\\CRM.Api\\appsettings.json*",
+              "RelativeToolTip": "CRM.Api\\appsettings.json*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAnAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-04-13T16:59:41.282Z",
               "EditorCaption": ""
